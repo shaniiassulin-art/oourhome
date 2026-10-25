@@ -76,7 +76,17 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--bg);margin-top:-20px;padding-block:14px 8px;border-bottom:1px solid transparent;transition:border-color .2s}
+header.top.stuck{border-bottom-color:var(--line)}
+.refresh{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px 7px 12px;font-weight:700;font-size:14px;flex:none}
+.refresh svg{transition:transform .2s}
+.refresh.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(-360deg)}}
+.wk-sub{margin:22px 0 2px;font-size:14px;font-weight:700;color:var(--muted)}
+.ord-list .always{display:block;font-size:12px;font-weight:600;opacity:.75}
+.ord-list li.editing{flex-wrap:wrap}
+.ord-list li.editing label{flex-basis:100%;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--cc);padding:4px 2px 2px}
+.ord-list li.editing label input{width:20px;height:20px;flex:none;accent-color:var(--cc)}
 h1{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.1;margin:0;text-wrap:balance}
 .date{color:var(--muted);font-size:14px;margin-top:4px}
 .date b{color:var(--ink);font-weight:600}
@@ -250,12 +260,11 @@ details.more summary .count{font-weight:500;font-size:13px;margin-inline-start:8
 </style>
 
 <div class="wrap">
-  <header class="top">
-    <div>
-      <h1>הבית שלנו</h1>
-      <div class="date" id="today"></div>
-    </div>
+  <header class="top" id="topbar">
+    <h1>הבית שלנו</h1>
+    <button class="refresh" id="refresh" type="button" aria-label="רענון: טעינת השינויים האחרונים"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg><span>רענון</span></button>
   </header>
+  <div class="date" id="today"></div>
 
   <section class="summary" aria-label="סיכום">
     <button class="stat wkstat" id="st-wk" data-go="week"><b>–</b>לעשות השבוע</button>
@@ -335,7 +344,7 @@ details.more summary .count{font-weight:500;font-size:13px;margin-inline-start:8
 <div class="pick-scrim" id="ord-scrim"></div>
 <div class="picker ordp" id="ordp" role="dialog" aria-modal="true" aria-labelledby="ord-title">
   <div class="pk-head"><b id="ord-title">ניהול קטגוריות</b></div>
-  <p class="ord-hint">החצים משנים את הסדר. העיפרון משנה שם, והפח מוחק. כל שינוי נשמר מיד ומופיע בכל המכשירים.</p>
+  <p class="ord-hint">החצים משנים את הסדר. העיפרון משנה שם וקובע אם הקטגוריה מופיעה בכל שבוע. הפח מוחק. כל שינוי נשמר מיד ומופיע בכל המכשירים.</p>
   <ol class="ord-list" id="ord-list"></ol>
   <p class="ord-msg" id="ord-msg" role="alert" hidden></p>
   <button type="button" class="btn primary" id="ord-done" style="width:100%;margin-top:12px">סיום</button>
@@ -362,6 +371,12 @@ function allCats(){
   for(const k of def)if(!ord.includes(k)){const i=k==="none"?ord.length:Math.max(0,ord.indexOf("none"));ord.splice(i<0?ord.length:i,0,k)}
   return ord;
 }
+/* categories whose tasks show on "לעשות השבוע" every week (default: "קבועות") */
+const alwaysList=()=>settings.alwaysWeek??["c:קבועות"];
+const isAlways=k=>alwaysList().includes(k);
+function weekStart(){const d=parse(TODAY);d.setDate(d.getDate()-d.getDay());return iso(d)}/* Sunday */
+const doneThisWeek=t=>!!t.last&&t.last>=weekStart();
+function weekTodo(){return[...tasks.values()].filter(t=>isAlways(catKey(t))?!doneThisWeek(t):t.thisWeek)}
 const INTS=[3,7,14,21,28,56,90];
 const $=s=>document.querySelector(s);
 
@@ -482,7 +497,7 @@ function sortTasks(a){return a.sort((x,y)=>{
 
 function renderSummary(){
   const all=[...tasks.values()].map(remOf);
-  const late=all.filter(r=>r!=null&&r<0).length, wk=[...tasks.values()].filter(t=>t.thisWeek).length;
+  const late=all.filter(r=>r!=null&&r<0).length, wk=weekTodo().length;
   $("#st-late b").textContent=late;$("#st-wk b").textContent=wk;
   $("#st-wk").setAttribute("aria-current",view==="week"?"true":"false");
   document.querySelectorAll(".stat").forEach(b=>b.setAttribute("aria-pressed",quick===b.dataset.f?"true":"false"));
@@ -496,16 +511,16 @@ function renderChips(){
 }
 
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
-function taskRow(t,showRoom=true,showPrio=true){
+function taskRow(t,showRoom=true,showPrio=true,doneWeek=false){
   const s=statusOf(t.rem);
-  const doneToday=t.last===TODAY;
+  const doneToday=t.last===TODAY||doneWeek;
   return `<div class="task s-${doneToday?"week":s}${doneToday?" done":""}" data-id="${t.id}">
     <button class="check" data-done="${t.id}" aria-label="סמן כבוצע: ${esc(t.name)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-10"/></svg></button>
     <button class="body" data-open="${t.id}">
-      <div class="name">${esc(t.name)}${t.thisWeek&&view!=="week"?`<span class="wk">השבוע</span>`:""}</div>
+      <div class="name">${esc(t.name)}${t.thisWeek&&view!=="week"&&!isAlways(catKey(t))?`<span class="wk">השבוע</span>`:""}</div>
       <div class="meta">${showPrio?`<span style="${catStyle(catKey(t))}"><i class="prio"></i> ${esc(catKey(t)==="none"?"ללא סוג":catLabel(catKey(t)))}</span><span class="sep">·</span>`:""}${showRoom?`<span>${esc(t.room)}</span><span class="sep">·</span>`:""}<span>${intLabel(t.interval)}</span></div>
     </button>
-    <span class="pill">${doneToday?"בוצע היום":remLabel(t.rem)}</span>
+    <span class="pill">${t.last===TODAY?"בוצע היום":doneWeek?"בוצע ב־"+fmtShort(t.last):remLabel(t.rem)}</span>
   </div>`;
 }
 function group(cls,title,items,showRoom=true,showPrio=true,style=""){
@@ -518,7 +533,7 @@ function render(){
   $("#today").innerHTML=`<b>יום ${weekday().replace("יום ","")}, ${fmt(TODAY)}</b> · ${hebDate()}`;
   document.querySelectorAll("#views button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===view?"true":"false"));
   renderSummary();renderChips();
-  {const n=[...tasks.values()].filter(t=>t.thisWeek).length;const el=$("#wk-n");el.hidden=!n;el.textContent=n;}
+  {const n=weekTodo().length;const el=$("#wk-n");el.hidden=!n;el.textContent=n;}
   const main=$("#main");
   if(mode==="loading"){main.innerHTML=`<div class="empty"><b>טוען את המשימות…</b></div>`;return}
   if(!tasks.size){main.innerHTML=`<div class="empty"><b>עוד אין משימות</b>לחצו על + כדי להוסיף את הראשונה.</div>`;return}
@@ -540,17 +555,23 @@ function render(){
     const all=[...tasks.entries()].map(([id,t])=>({id,...t,rem:remOf(t)})).filter(t=>!query||t.name.includes(query.trim()));
     const order=allCats(),byCat=(a,b)=>order.indexOf(catKey(a))-order.indexOf(catKey(b))||(a.rem??1e9)-(b.rem??1e9);
     if(picking){
-      const n=all.filter(t=>t.thisWeek).length;
+      const n=all.filter(t=>t.thisWeek&&!isAlways(catKey(t))).length;
+      const fixedNames=order.filter(isAlways).map(c=>`"${esc(catLabel(c))}"`).join(", ");
       let h=`<div class="wk-head"><div><b>בחירת משימות לשבוע</b><span>${n?`נבחרו ${n}`:"סמני את המשימות שתרצי לעשות השבוע"}</span></div><button class="btn primary" id="wk-end">סיום</button></div>`;
-      h+=order.map(c=>{const g=all.filter(t=>catKey(t)===c).sort((a,b)=>(a.rem??1e9)-(b.rem??1e9));if(!g.length)return"";
+      if(fixedNames)h+=`<p class="banner">המשימות מ־${fixedNames} מופיעות בכל שבוע אוטומטית, לכן הן לא ברשימה כאן.</p>`;
+      h+=order.filter(c=>!isAlways(c)).map(c=>{const g=all.filter(t=>catKey(t)===c).sort((a,b)=>(a.rem??1e9)-(b.rem??1e9));if(!g.length)return"";
         return `<section class="group cat" style="${catStyle(c)}"><h2><span class="dot"></span>${esc(c==="none"?"ללא סוג":catLabel(c))}<span class="cnt">${g.filter(t=>t.thisWeek).length||""}</span></h2><div class="list">${g.map(t=>`<button class="pickrow" data-pick="${t.id}" aria-pressed="${!!t.thisWeek}"><span class="pickbox"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><path d="m5 12 5 5 9-10"/></svg></span><span class="body"><span class="name" style="display:block">${esc(t.name)}</span><span class="meta"><span>${esc(t.room)}</span><span class="sep">·</span><span>${remLabel(t.rem)}</span></span></span></button>`).join("")}</div></section>`}).join("");
       main.innerHTML=h;return;
     }
-    const sel=all.filter(t=>t.thisWeek).sort(byCat);
-    const head=`<div class="wk-head"><div><b>לעשות השבוע</b><span>${sel.length?`${sel.length} משימות · אחרי ביצוע המשימה היא חוזרת לקטגוריה שלה`:"עוד לא נבחרו משימות"}</span></div><button class="btn${sel.length?"":" primary"}" id="wk-pick">${sel.length?"עריכת הבחירה":"בחירת משימות"}</button></div>`;
-    if(!sel.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
-    main.innerHTML=head+`<section class="group" style="margin-top:14px"><div class="list">${sel.map(t=>taskRow(t,true,true)).join("")}</div></section>`+
-      `<div class="wk-foot"><button class="btn ghost" id="wk-clear">ניקוי הרשימה</button></div>`;
+    const fixedTodo=all.filter(t=>isAlways(catKey(t))&&!doneThisWeek(t)),fixedDone=all.filter(t=>isAlways(catKey(t))&&doneThisWeek(t));
+    const picked=all.filter(t=>t.thisWeek&&!isAlways(catKey(t)));
+    const todo=[...fixedTodo,...picked].sort(byCat);
+    const head=`<div class="wk-head"><div><b>לעשות השבוע</b><span>${todo.length?`נשארו ${todo.length} משימות`:fixedDone.length?"הכול בוצע השבוע 🎉":"עוד לא נבחרו משימות"}</span></div><button class="btn${picked.length?"":" primary"}" id="wk-pick">${picked.length?"עריכת הבחירה":"בחירת משימות"}</button></div>`;
+    if(!todo.length&&!fixedDone.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
+    main.innerHTML=head+
+      (todo.length?`<section class="group" style="margin-top:14px"><div class="list">${todo.map(t=>taskRow(t,true,true)).join("")}</div></section>`:"")+
+      (fixedDone.length?`<div class="wk-sub">בוצעו השבוע · יחזרו ביום ראשון</div><section class="group" style="margin-top:4px"><div class="list">${fixedDone.sort(byCat).map(t=>taskRow(t,true,true,true)).join("")}</div></section>`:"")+
+      (picked.length?`<div class="wk-foot"><button class="btn ghost" id="wk-clear">ניקוי המשימות שבחרתי</button></div>`:"");
     return;
   }
   if(view==="category"){
@@ -589,14 +610,14 @@ function markDone(id,date=TODAY){
 }
 
 document.addEventListener("click",e=>{
-  const d=e.target.closest("[data-done]");if(d){const t=tasks.get(d.dataset.done);if(t&&t.last===TODAY){/* undo today's tick */const h=(t.history||[]).filter(x=>x!==TODAY);writeTask(d.dataset.done,{...t,last:h[0]||null,history:h})}else markDone(d.dataset.done);return}
+  const d=e.target.closest("[data-done]");if(d){const t=tasks.get(d.dataset.done);if(t&&(t.last===TODAY||(view==="week"&&isAlways(catKey(t))&&doneThisWeek(t)))){/* undo today's tick */const h=(t.history||[]).filter(x=>x!==t.last);writeTask(d.dataset.done,{...t,last:h[0]||null,history:h})}else markDone(d.dataset.done);return}
   const o=e.target.closest("[data-open]");if(o){openSheet(o.dataset.open);return}
   const pr=e.target.closest("[data-pick]");if(pr){const t=tasks.get(pr.dataset.pick);if(t)writeTask(pr.dataset.pick,{...t,thisWeek:!t.thisWeek});return}
   if(e.target.closest("#wk-pick")){picking=true;render();window.scrollTo(0,0);return}
   if(e.target.closest("#wk-end")){picking=false;render();window.scrollTo(0,0);return}
   const wc=e.target.closest("#wk-clear");if(wc){
-    if(!clearArmed){clearArmed=true;wc.classList.add("arm");wc.textContent="לחצי שוב כדי לנקות את כל הרשימה";setTimeout(()=>{clearArmed=false;if(wc.isConnected){wc.classList.remove("arm");wc.textContent="ניקוי הרשימה"}},4000);return}
-    clearArmed=false;const prev=[...tasks.entries()].filter(([,t])=>t.thisWeek);
+    if(!clearArmed){clearArmed=true;wc.classList.add("arm");wc.textContent="לחצי שוב כדי לנקות את כל הרשימה";setTimeout(()=>{clearArmed=false;if(wc.isConnected){wc.classList.remove("arm");wc.textContent="ניקוי המשימות שבחרתי"}},4000);return}
+    clearArmed=false;const prev=[...tasks.entries()].filter(([,t])=>t.thisWeek&&!isAlways(catKey(t)));
     prev.forEach(([id,t])=>writeTask(id,{...t,thisWeek:false}));
     showToast("הרשימה של השבוע נוקתה",()=>prev.forEach(([id,t])=>writeTask(id,t)));return}
   const c=e.target.closest("[data-r]");if(c){room=c.dataset.r;saveUI();render();return}
@@ -627,7 +648,9 @@ function saveEdit(){
   const prev=tasks.get(editId);if(!prev)return;const d=draft();if(!d.name)return;
   let history=[...(prev.history||[])];if(d.last&&!history.includes(d.last))history=[d.last,...history].sort().reverse().slice(0,40);
   const next={...prev,...d,history};
+  if(d.last&&d.last!==prev.last&&(!prev.last||d.last>prev.last))next.thisWeek=false;
   if(JSON.stringify(next)===JSON.stringify(prev))return;
+  renderWeekBtn(next);
   writeTask(editId,next);$("#sh-title").textContent=d.name;
   const sub=$("#sh-sub");sub.textContent="נשמר ✓";sub.classList.add("saved");
 }
@@ -696,7 +719,7 @@ $("#sh-save").onclick=()=>{
   showToast(prev?"השינויים נשמרו":"המשימה נוספה",false);
 };
 $("#sh-done").onclick=()=>{saveEdit();const id=editId;editId=null;closeSheet();markDone(id)};
-function renderWeekBtn(t){const b=$("#sh-week");b.textContent=t?.thisWeek?"✓ נבחרה לשבוע":"+ לעשות השבוע";b.className="btn"+(t?.thisWeek?" wk-on":"")}
+function renderWeekBtn(t){const b=$("#sh-week");const fixed=t&&isAlways(catKey(t));b.disabled=!!fixed;b.textContent=fixed?"בכל שבוע אוטומטית":t?.thisWeek?"✓ נבחרה לשבוע":"+ לעשות השבוע";b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
 $("#sh-week").onclick=()=>{saveEdit();const t=tasks.get(editId);if(!t)return;const n={...t,thisWeek:!t.thisWeek};writeTask(editId,n);renderWeekBtn(n)};
 
 /* ---------- date picker: always opens on the current month ---------- */
@@ -741,11 +764,11 @@ const IC={
 let ordEdit=null,ordDel=null;
 function orderRow(k,i,len){
   const st=catStyle(k);
-  if(k===ordEdit)return `<li style="${st}" class="editing"><input id="ord-in" type="text" maxlength="30" value="${esc(catLabel(k))}" aria-label="שם הקטגוריה"><button type="button" class="txtb" data-save="${esc(k)}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button></li>`;
+  if(k===ordEdit)return `<li style="${st}" class="editing"><input id="ord-in" type="text" maxlength="30" value="${esc(catLabel(k))}" aria-label="שם הקטגוריה"><button type="button" class="txtb" data-save="${esc(k)}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button><label><input type="checkbox" id="ord-always"${isAlways(k)?" checked":""}>להציג תמיד ב"לעשות השבוע"</label></li>`;
   const n=[...tasks.values()].filter(t=>catKey(t)===k).length;
   if(k===ordDel)return `<li style="${st}" class="confirm"><span class="nm">${n?`${n} משימות יעברו ל"ללא סוג". למחוק?`:"למחוק את הקטגוריה?"}</span><button type="button" class="txtb danger" data-delok="${esc(k)}">מחיקה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button></li>`;
   const fixed=k==="none";
-  return `<li style="${st}"><span class="num">${i+1}</span><span class="nm">${esc(fixed?"ללא סוג (-)":catLabel(k))}</span>`+
+  return `<li style="${st}"><span class="num">${i+1}</span><span class="nm">${esc(fixed?"ללא סוג (-)":catLabel(k))}${isAlways(k)?`<span class="always">מופיעה בכל שבוע</span>`:""}</span>`+
     (fixed?"":`<button type="button" data-ren="${esc(k)}" aria-label="שינוי שם">${IC.pen}</button><button type="button" data-del="${esc(k)}" aria-label="מחיקה">${IC.bin}</button>`)+
     `<button type="button" data-mv="${esc(k)}" data-d="-1" aria-label="הזזה למעלה"${i===0?" disabled":""}>${IC.up}</button><button type="button" data-mv="${esc(k)}" data-d="1" aria-label="הזזה למטה"${i===len-1?" disabled":""}>${IC.dn}</button></li>`;
 }
@@ -761,7 +784,8 @@ function saveRename(k){
   const name=($("#ord-in")?.value||"").trim().replace(/\s+/g," ");
   if(!name){ordMsg("צריך שם לקטגוריה");return}
   if(name==="-"||name==="ללא סוג"||allCats().some(c=>c!==k&&catLabel(c)===name)){ordMsg("כבר יש קטגוריה בשם הזה");return}
-  ordEdit=null;writeSettings({...settings,labels:{...(settings.labels||{}),[k]:name}});renderOrder();
+  const al=new Set(alwaysList());if($("#ord-always")?.checked)al.add(k);else al.delete(k);
+  ordEdit=null;writeSettings({...settings,labels:{...(settings.labels||{}),[k]:name},alwaysWeek:[...al]});renderOrder();
 }
 function deleteCat(k){
   const prevSettings=structuredClone(settings),moved=[...tasks.entries()].filter(([,t])=>catKey(t)===k);
@@ -788,6 +812,15 @@ $("#ord-list").addEventListener("click",e=>{
 $("#ord-list").addEventListener("keydown",e=>{if(e.target.id==="ord-in"){if(e.key==="Enter"){e.preventDefault();saveRename(ordEdit)}else if(e.key==="Escape"){e.stopPropagation();ordEdit=null;renderOrder()}}});
 $("#ord-done").onclick=closeOrder;$("#ord-scrim").onclick=closeOrder;
 document.addEventListener("click",e=>{if(e.target.closest("#cat-order"))openOrder()});
+
+/* ---------- refresh: send waiting changes, then reload the page (new data + newest version of the app) ---------- */
+$("#refresh").onclick=async()=>{
+  const b=$("#refresh");if(b.classList.contains("spin"))return;b.classList.add("spin");
+  try{if(mode==="remote")await Promise.race([flush(),new Promise(r=>setTimeout(r,4000))])}catch(e){}
+  if(mode==="db"){setTimeout(()=>{b.classList.remove("spin");render();showToast("מעודכן ✓",false)},500);return}
+  location.reload();
+};
+{const tb=$("#topbar");const onS=()=>tb.classList.toggle("stuck",window.scrollY>8);window.addEventListener("scroll",onS,{passive:true});onS();}
 
 /* ---------- no zoom ---------- */
 ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
