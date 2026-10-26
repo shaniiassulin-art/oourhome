@@ -612,7 +612,7 @@ function markDone(id,date=TODAY){
 }
 
 document.addEventListener("click",e=>{
-  const d=e.target.closest("[data-done]");if(d){const t=tasks.get(d.dataset.done);if(t&&(t.last===TODAY||(view==="week"&&isAlways(catKey(t))&&doneThisWeek(t)))){/* undo today's tick */const h=(t.history||[]).filter(x=>x!==t.last);writeTask(d.dataset.done,{...t,last:h[0]||null,history:h})}else markDone(d.dataset.done);return}
+  const d=e.target.closest("[data-done]");if(d){const t=tasks.get(d.dataset.done);if(t&&(t.last===TODAY||(view==="week"&&isAlways(catKey(t))&&doneThisWeek(t)))){/* undo today's tick */const h=(t.history||[]).filter(x=>x!==t.last);writeTask(d.dataset.done,{...t,last:h[0]||null,history:h})}else markDone(d.dataset.done,lastFriday());return}
   const o=e.target.closest("[data-open]");if(o){openSheet(o.dataset.open);return}
   const pr=e.target.closest("[data-pick]");if(pr){const t=tasks.get(pr.dataset.pick);if(t)writeTask(pr.dataset.pick,{...t,thisWeek:!t.thisWeek});return}
   if(e.target.closest("#wk-pick")){picking=true;render();window.scrollTo(0,0);return}
