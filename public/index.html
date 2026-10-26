@@ -68,6 +68,9 @@
   --c7:#B4CC7E; --c7-bg:#1F2616; --c7-line:#2D3820;
   --wk:#A9AEF5; --wk-bg:#23264A; color-scheme:dark}
 *{box-sizing:border-box}
+html{scrollbar-gutter:stable}
+body.booting{opacity:0}
+body{transition:opacity .15s}
 [hidden]{display:none!important}
 html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 input,select,textarea{font-size:16px!important}
@@ -573,7 +576,7 @@ function render(){
     if(!todo.length&&fixedDone.length){main.innerHTML=head+`<div class="empty alldone"><b>כל המשימות של השבוע הושלמו 🎉</b>ביום שישי המשימות הקבועות יחזרו לרשימה.</div>`;return}
     if(!todo.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
     main.innerHTML=head+
-      (todo.length?`<section class="group" style="margin-top:14px"><div class="list">${todo.map(t=>taskRow(t,true,true)).join("")}</div></section>`:"")+
+      (todo.length?`<section class="group" style="margin-top:14px"><div class="list">${todo.map(t=>taskRow(t,true,false)).join("")}</div></section>`:"")+
       (picked.length?`<div class="wk-foot"><button class="btn ghost" id="wk-clear">ניקוי המשימות שבחרתי</button></div>`:"");
     return;
   }
@@ -725,7 +728,7 @@ $("#sh-save").onclick=()=>{
 function lastFriday(){const d=parse(TODAY);d.setDate(d.getDate()-((d.getDay()-5+7)%7));return iso(d)}
 function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצע</span><small>${f===TODAY?"היום":`בשישי האחרון · ${fmtShort(f)}`}</small>`}
 $("#sh-done").onclick=()=>{saveEdit();const id=editId;editId=null;closeSheet();markDone(id,lastFriday())};
-function renderWeekBtn(t){const b=$("#sh-week");const fixed=t&&isAlways(catKey(t));b.disabled=!!fixed;b.innerHTML=fixed?`<span>לעשות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ לעשות השבוע</span><small>לחיצה מסירה</small>`:`<span>+ לעשות השבוע</span><small>הוספה לרשימה</small>`;b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
+function renderWeekBtn(t){const b=$("#sh-week");const fixed=t&&isAlways(catKey(t));b.disabled=!!fixed;b.innerHTML=fixed?`<span>לעשות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ לעשות השבוע</span>`:`<span>+ לעשות השבוע</span><small>הוספה לרשימה</small>`;b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
 $("#sh-week").onclick=()=>{saveEdit();const t=tasks.get(editId);if(!t)return;const n={...t,thisWeek:!t.thisWeek};writeTask(editId,n);renderWeekBtn(n)};
 
 /* ---------- date picker: always opens on the current month ---------- */
@@ -832,12 +835,16 @@ $("#refresh").onclick=async()=>{
 ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
 document.addEventListener("touchmove",e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
 
-/* ---------- boot ---------- */
+/* ---------- boot: stay hidden until the fonts are in, so nothing shifts on load ---------- */
+document.body.classList.add("booting");
+{const show=()=>document.body.classList.remove("booting");try{Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,700))]).then(show)}catch(e){show()}setTimeout(show,1200)}
 render();
 async function startRemote(){
   /* returns true when this site has the sync server (Netlify) */
   if(!/^https?:$/.test(location.protocol))return false;
   let cached=null;try{cached=JSON.parse(localStorage.getItem(CACHE)||"null")}catch(e){}
+  /* show the last saved copy right away; the server's answer replaces it a moment later */
+  if(cached){mode="remote";tasks=takeSettings(new Map(Object.entries(cached)));render()}
   try{
     const r=await fetch("/api/tasks",{cache:"no-store"});
     if(r.status===404)return false;
