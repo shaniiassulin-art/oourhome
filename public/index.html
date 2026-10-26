@@ -168,6 +168,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.1;m
 .sheet .sub{color:var(--muted);font-size:13.5px;margin-bottom:12px;min-height:1.4em}
 .sheet .sub.saved{color:var(--ok)}
 .quick{margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quick #sh-done{grid-column:1/-1}
 .quick .btn{width:100%}
 .btn.wk-on{background:var(--wk-bg);border-color:var(--wk);color:var(--wk)}
 .wk{display:inline-block;vertical-align:2px;margin-inline-start:6px;font-size:11.5px;font-weight:800;color:var(--wk);background:var(--wk-bg);border-radius:999px;padding:1px 8px;letter-spacing:.02em}
@@ -375,7 +376,7 @@ function allCats(){
 /* categories whose tasks show on "לעשות השבוע" every week (default: "קבועות") */
 const alwaysList=()=>settings.alwaysWeek??["c:קבועות"];
 const isAlways=k=>alwaysList().includes(k);
-function weekStart(){const d=parse(TODAY);d.setDate(d.getDate()-d.getDay());return iso(d)}/* Sunday */
+function weekStart(){const d=parse(TODAY);d.setDate(d.getDate()-((d.getDay()-5+7)%7));return iso(d)}/* the week runs Friday→Thursday, matching the "last Friday" done button */
 const doneThisWeek=t=>!!t.last&&t.last>=weekStart();
 function weekTodo(){return[...tasks.values()].filter(t=>isAlways(catKey(t))?!doneThisWeek(t):t.thisWeek)}
 const INTS=[3,7,14,21,28,56,90];
@@ -571,7 +572,7 @@ function render(){
     if(!todo.length&&!fixedDone.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
     main.innerHTML=head+
       (todo.length?`<section class="group" style="margin-top:14px"><div class="list">${todo.map(t=>taskRow(t,true,true)).join("")}</div></section>`:"")+
-      (fixedDone.length?`<div class="wk-sub">בוצעו השבוע · יחזרו ביום ראשון</div><section class="group" style="margin-top:4px"><div class="list">${fixedDone.sort(byCat).map(t=>taskRow(t,true,true,true)).join("")}</div></section>`:"")+
+      (fixedDone.length?`<div class="wk-sub">בוצעו השבוע · יחזרו ביום שישי</div><section class="group" style="margin-top:4px"><div class="list">${fixedDone.sort(byCat).map(t=>taskRow(t,true,true,true)).join("")}</div></section>`:"")+
       (picked.length?`<div class="wk-foot"><button class="btn ghost" id="wk-clear">ניקוי המשימות שבחרתי</button></div>`:"");
     return;
   }
@@ -693,7 +694,7 @@ function openSheet(id){
   $("#sh-save").textContent=id?"סגירה":"הוספת משימה";$("#sh-save").className=id?"btn":"btn primary";
   $("#sh-del").textContent="מחק משימה";
   $("#sh-quick").hidden=!id;$("#sh-del").hidden=!id;$("#sh-histwrap").hidden=!id||!(t.history||[]).length;
-  renderWeekBtn(t);
+  renderWeekBtn(t);renderDoneBtn();
   $("#f-name").value=t.name;$("#f-room").value=t.room;editType=catKey(t);$("#f-newtype").hidden=true;renderTypes();editInt=t.interval||7;renderInts();
   setDateBtn($("#f-last"),t.last,"לא בוצע עדיין");$("#f-next").dataset.value=t.manualNext||"";$("#f-notes").value=t.notes||"";
   $("#sh-more-sum").textContent=[t.room,t.notes?"יש הערה":""].filter(Boolean).join(" · ");
@@ -719,7 +720,10 @@ $("#sh-save").onclick=()=>{
   writeTask(id,{...d,history,created:prev?.created||TODAY});closeSheet();
   showToast(prev?"השינויים נשמרו":"המשימה נוספה",false);
 };
-$("#sh-done").onclick=()=>{saveEdit();const id=editId;editId=null;closeSheet();markDone(id)};
+/* the task window's done button records the most recent Friday: today if it is Friday, otherwise last Friday */
+function lastFriday(){const d=parse(TODAY);d.setDate(d.getDate()-((d.getDay()-5+7)%7));return iso(d)}
+function renderDoneBtn(){const f=lastFriday();$("#sh-done").textContent=f===TODAY?"✓ בוצע היום":`✓ בוצע בשישי האחרון (${fmtShort(f)})`}
+$("#sh-done").onclick=()=>{saveEdit();const id=editId;editId=null;closeSheet();markDone(id,lastFriday())};
 function renderWeekBtn(t){const b=$("#sh-week");const fixed=t&&isAlways(catKey(t));b.disabled=!!fixed;b.textContent=fixed?"בכל שבוע אוטומטית":t?.thisWeek?"✓ נבחרה לשבוע":"+ לעשות השבוע";b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
 $("#sh-week").onclick=()=>{saveEdit();const t=tasks.get(editId);if(!t)return;const n={...t,thisWeek:!t.thisWeek};writeTask(editId,n);renderWeekBtn(n)};
 
