@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import SEED from "./seed.mjs";
+import { IMPORT_FLAG, CATS as IMPORT_CATS, ITEMS as IMPORT_ITEMS } from "./shop-import.mjs";
 
 // GET    /api/tasks      -> { tasks: { id: task } }
 // PUT    /api/tasks/:id  -> save one task
@@ -27,7 +28,9 @@ export default async (req, context) => {
     const entries = await Promise.all(
       blobs.map(async (b) => [b.key.slice(2), await store.get(b.key, { type: "json" })])
     );
-    return json({ tasks: Object.fromEntries(entries.filter(([, v]) => v)) });
+    const docs = Object.fromEntries(entries.filter(([, v]) => v));
+    if (!(await store.get(IMPORT_FLAG))) await importShopping(store, docs);
+    return json({ tasks: docs });
   }
 
   if (!id || !ID.test(id)) return json({ error: "מזהה משימה לא תקין" }, 400);
@@ -50,3 +53,21 @@ export default async (req, context) => {
 };
 
 export const config = { path: ["/api/tasks", "/api/tasks/:id"] };
+
+// One-time import of the shopping list: adds missing items (fixed ids, so a repeat run cannot duplicate)
+// and puts its groups first in the shopping categories, keeping any category that already has items.
+async function importShopping(store, docs) {
+  for (const [id, item] of Object.entries(IMPORT_ITEMS)) {
+    if (docs[id]) continue;
+    await store.setJSON("t/" + id, item);
+    docs[id] = item;
+  }
+  const settings = docs._settings || { name: "_settings" };
+  const used = new Set(Object.values(docs).filter((d) => d && d.kind === "shop").map((d) => d.cat));
+  const before = settings.cats?.shop || [];
+  const shop = [...IMPORT_CATS, ...before.filter((k) => !IMPORT_CATS.includes(k) && used.has(k))];
+  const next = { ...settings, name: "_settings", cats: { ...(settings.cats || {}), shop } };
+  await store.setJSON("t/_settings", next);
+  docs._settings = next;
+  await store.set(IMPORT_FLAG, new Date().toISOString());
+}
