@@ -168,8 +168,9 @@ h1{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.1;m
 .sheet .sub{color:var(--muted);font-size:13.5px;margin-bottom:12px;min-height:1.4em}
 .sheet .sub.saved{color:var(--ok)}
 .quick{margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.quick #sh-done{grid-column:1/-1}
-.quick .btn{width:100%}
+.quick .btn{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:58px;padding:8px 10px;line-height:1.2}
+.quick .btn small{font-size:12.5px;font-weight:600;opacity:.8}
+.quick .btn:disabled{cursor:default}
 .btn.wk-on{background:var(--wk-bg);border-color:var(--wk);color:var(--wk)}
 .wk{display:inline-block;vertical-align:2px;margin-inline-start:6px;font-size:11.5px;font-weight:800;color:var(--wk);background:var(--wk-bg);border-radius:999px;padding:1px 8px;letter-spacing:.02em}
 .group.cat h2 .wk-cat{margin-inline-start:2px;vertical-align:0;font-size:12px}
@@ -300,7 +301,7 @@ details.more summary .count{font-weight:500;font-size:13px;margin-inline-start:8
     <h3 id="sh-title"></h3>
     <div class="sub" id="sh-sub"></div>
     <div class="quick" id="sh-quick">
-      <button class="btn primary" id="sh-done">✓ בוצע היום</button>
+      <button class="btn primary" id="sh-done"><span>✓ בוצע</span></button>
       <button class="btn" id="sh-week"></button>
     </div>
     <div class="field"><label for="f-name">שם המשימה</label><input id="f-name" type="text" placeholder="למשל: ניקוי מקרר"></div>
@@ -515,14 +516,14 @@ function renderChips(){
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 function taskRow(t,showRoom=true,showPrio=true,doneWeek=false){
   const s=statusOf(t.rem);
-  const doneToday=t.last===TODAY||doneWeek;
+  const doneToday=false;
   return `<div class="task s-${doneToday?"week":s}${doneToday?" done":""}" data-id="${t.id}">
     <button class="check" data-done="${t.id}" aria-label="סמן כבוצע: ${esc(t.name)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-10"/></svg></button>
     <button class="body" data-open="${t.id}">
       <div class="name">${esc(t.name)}${t.thisWeek&&view!=="week"&&!isAlways(catKey(t))?`<span class="wk">השבוע</span>`:""}</div>
       <div class="meta">${showPrio?`<span style="${catStyle(catKey(t))}"><i class="prio"></i> ${esc(catKey(t)==="none"?"ללא סוג":catLabel(catKey(t)))}</span><span class="sep">·</span>`:""}${showRoom?`<span>${esc(t.room)}</span><span class="sep">·</span>`:""}<span>${intLabel(t.interval)}</span></div>
     </button>
-    <span class="pill">${t.last===TODAY?"בוצע היום":doneWeek?"בוצע ב־"+fmtShort(t.last):remLabel(t.rem)}</span>
+    <span class="pill">${remLabel(t.rem)}</span>
   </div>`;
 }
 function group(cls,title,items,showRoom=true,showPrio=true,style=""){
@@ -568,11 +569,11 @@ function render(){
     const fixedTodo=all.filter(t=>isAlways(catKey(t))&&!doneThisWeek(t)),fixedDone=all.filter(t=>isAlways(catKey(t))&&doneThisWeek(t));
     const picked=all.filter(t=>t.thisWeek&&!isAlways(catKey(t)));
     const todo=[...fixedTodo,...picked].sort(byCat);
-    const head=`<div class="wk-head"><div><b>לעשות השבוע</b><span>${todo.length?`נשארו ${todo.length} משימות`:fixedDone.length?"הכול בוצע השבוע 🎉":"עוד לא נבחרו משימות"}</span></div><button class="btn${picked.length?"":" primary"}" id="wk-pick">${picked.length?"עריכת הבחירה":"בחירת משימות"}</button></div>`;
-    if(!todo.length&&!fixedDone.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
+    const head=`<div class="wk-head"><div><b>לעשות השבוע</b><span>${todo.length?`נשארו ${todo.length} משימות`:fixedDone.length?"כל המשימות הושלמו":"עוד לא נבחרו משימות"}</span></div><button class="btn${picked.length?"":" primary"}" id="wk-pick">${picked.length?"עריכת הבחירה":"בחירת משימות"}</button></div>`;
+    if(!todo.length&&fixedDone.length){main.innerHTML=head+`<div class="empty alldone"><b>כל המשימות של השבוע הושלמו 🎉</b>ביום שישי המשימות הקבועות יחזרו לרשימה.</div>`;return}
+    if(!todo.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
     main.innerHTML=head+
       (todo.length?`<section class="group" style="margin-top:14px"><div class="list">${todo.map(t=>taskRow(t,true,true)).join("")}</div></section>`:"")+
-      (fixedDone.length?`<div class="wk-sub">בוצעו השבוע · יחזרו ביום שישי</div><section class="group" style="margin-top:4px"><div class="list">${fixedDone.sort(byCat).map(t=>taskRow(t,true,true,true)).join("")}</div></section>`:"")+
       (picked.length?`<div class="wk-foot"><button class="btn ghost" id="wk-clear">ניקוי המשימות שבחרתי</button></div>`:"");
     return;
   }
@@ -612,7 +613,7 @@ function markDone(id,date=TODAY){
 }
 
 document.addEventListener("click",e=>{
-  const d=e.target.closest("[data-done]");if(d){const t=tasks.get(d.dataset.done);if(t&&(t.last===TODAY||(view==="week"&&isAlways(catKey(t))&&doneThisWeek(t)))){/* undo today's tick */const h=(t.history||[]).filter(x=>x!==t.last);writeTask(d.dataset.done,{...t,last:h[0]||null,history:h})}else markDone(d.dataset.done,lastFriday());return}
+  const d=e.target.closest("[data-done]");if(d){const t=tasks.get(d.dataset.done);markDone(d.dataset.done,lastFriday());return}
   const o=e.target.closest("[data-open]");if(o){openSheet(o.dataset.open);return}
   const pr=e.target.closest("[data-pick]");if(pr){const t=tasks.get(pr.dataset.pick);if(t)writeTask(pr.dataset.pick,{...t,thisWeek:!t.thisWeek});return}
   if(e.target.closest("#wk-pick")){picking=true;render();window.scrollTo(0,0);return}
@@ -722,9 +723,9 @@ $("#sh-save").onclick=()=>{
 };
 /* the task window's done button records the most recent Friday: today if it is Friday, otherwise last Friday */
 function lastFriday(){const d=parse(TODAY);d.setDate(d.getDate()-((d.getDay()-5+7)%7));return iso(d)}
-function renderDoneBtn(){const f=lastFriday();$("#sh-done").textContent=f===TODAY?"✓ בוצע היום":`✓ בוצע בשישי האחרון (${fmtShort(f)})`}
+function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצע</span><small>${f===TODAY?"היום":`בשישי האחרון · ${fmtShort(f)}`}</small>`}
 $("#sh-done").onclick=()=>{saveEdit();const id=editId;editId=null;closeSheet();markDone(id,lastFriday())};
-function renderWeekBtn(t){const b=$("#sh-week");const fixed=t&&isAlways(catKey(t));b.disabled=!!fixed;b.textContent=fixed?"בכל שבוע אוטומטית":t?.thisWeek?"✓ נבחרה לשבוע":"+ לעשות השבוע";b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
+function renderWeekBtn(t){const b=$("#sh-week");const fixed=t&&isAlways(catKey(t));b.disabled=!!fixed;b.innerHTML=fixed?`<span>לעשות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ לעשות השבוע</span><small>לחיצה מסירה</small>`:`<span>+ לעשות השבוע</span><small>הוספה לרשימה</small>`;b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
 $("#sh-week").onclick=()=>{saveEdit();const t=tasks.get(editId);if(!t)return;const n={...t,thisWeek:!t.thisWeek};writeTask(editId,n);renderWeekBtn(n)};
 
 /* ---------- date picker: always opens on the current month ---------- */
