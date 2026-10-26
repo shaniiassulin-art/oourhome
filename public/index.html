@@ -171,6 +171,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.1;m
 .quick .btn{width:100%}
 .btn.wk-on{background:var(--wk-bg);border-color:var(--wk);color:var(--wk)}
 .wk{display:inline-block;vertical-align:2px;margin-inline-start:6px;font-size:11.5px;font-weight:800;color:var(--wk);background:var(--wk-bg);border-radius:999px;padding:1px 8px;letter-spacing:.02em}
+.group.cat h2 .wk-cat{margin-inline-start:2px;vertical-align:0;font-size:12px}
 .seg .n{font-size:12px;font-weight:800;margin-inline-start:4px;color:var(--wk);background:var(--wk-bg);border-radius:999px;padding:0 6px}
 .wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:22px}
 .wk-head b{font-family:var(--f-display);font-weight:400;font-size:20px}
@@ -576,7 +577,7 @@ function render(){
   }
   if(view==="category"){
     const byRem=a=>a.sort((x,y)=>(x.rem??1e9)-(y.rem??1e9));
-    main.innerHTML=`<div class="cat-tools"><button class="btn ghost" id="cat-order"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></svg>ניהול קטגוריות</button></div>`+allCats().map(c=>group("cat",esc(c==="none"?"ללא סוג":catLabel(c)),byRem(items.filter(t=>catKey(t)===c)),true,false,catStyle(c))).join("");
+    main.innerHTML=`<div class="cat-tools"><button class="btn ghost" id="cat-order"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></svg>ניהול קטגוריות</button></div>`+allCats().map(c=>group("cat",esc(c==="none"?"ללא סוג":catLabel(c))+(isAlways(c)?`<span class="wk wk-cat">בכל שבוע</span>`:""),byRem(items.filter(t=>catKey(t)===c)),true,false,catStyle(c))).join("");
     return;
   }
   if(view==="room"){
