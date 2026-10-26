@@ -85,6 +85,9 @@ header.top.stuck{border-bottom-color:var(--line)}
 .refresh svg{transition:transform .2s}
 .refresh.spin svg{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(-360deg)}}
+.alldone{margin-top:14px;background:var(--ok-soft);color:var(--ok);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.alldone b{font-size:16px}
+.alldone span{font-size:13.5px;color:var(--ink);opacity:.75}
 .wk-sub{margin:22px 0 2px;font-size:14px;font-weight:700;color:var(--muted)}
 .ord-list .always{display:block;font-size:12px;font-weight:600;opacity:.75}
 .ord-list li.editing{flex-wrap:wrap}
@@ -569,14 +572,16 @@ function render(){
         return `<section class="group cat" style="${catStyle(c)}"><h2><span class="dot"></span>${esc(c==="none"?"ללא סוג":catLabel(c))}<span class="cnt">${g.filter(t=>t.thisWeek).length||""}</span></h2><div class="list">${g.map(t=>`<button class="pickrow" data-pick="${t.id}" aria-pressed="${!!t.thisWeek}"><span class="pickbox"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><path d="m5 12 5 5 9-10"/></svg></span><span class="body"><span class="name" style="display:block">${esc(t.name)}</span><span class="meta"><span>${esc(t.room)}</span><span class="sep">·</span><span>${remLabel(t.rem)}</span></span></span></button>`).join("")}</div></section>`}).join("");
       main.innerHTML=h;return;
     }
-    const fixedTodo=all.filter(t=>isAlways(catKey(t))&&!doneThisWeek(t)),fixedDone=all.filter(t=>isAlways(catKey(t))&&doneThisWeek(t));
+    /* fixed tasks are always on the list (with their usual "in X days"); picked tasks stay until they are done */
+    const fixed=all.filter(t=>isAlways(catKey(t))),fixedTodo=fixed.filter(t=>!doneThisWeek(t));
     const picked=all.filter(t=>t.thisWeek&&!isAlways(catKey(t)));
-    const todo=[...fixedTodo,...picked].sort(byCat);
-    const head=`<div class="wk-head"><div><b>לעשות השבוע</b><span>${todo.length?`נשארו ${todo.length} משימות`:fixedDone.length?"כל המשימות הושלמו":"עוד לא נבחרו משימות"}</span></div><button class="btn${picked.length?"":" primary"}" id="wk-pick">${picked.length?"עריכת הבחירה":"בחירת משימות"}</button></div>`;
-    if(!todo.length&&fixedDone.length){main.innerHTML=head+`<div class="empty alldone"><b>כל המשימות של השבוע הושלמו 🎉</b>ביום שישי המשימות הקבועות יחזרו לרשימה.</div>`;return}
-    if(!todo.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
+    const list=[...fixed,...picked].sort(byCat),left=fixedTodo.length+picked.length;
+    const allDone=!left&&fixed.length>0;
+    const head=`<div class="wk-head"><div><b>לעשות השבוע</b><span>${left?`נשארו ${left} משימות`:allDone?"כל המשימות הושלמו":"עוד לא נבחרו משימות"}</span></div><button class="btn${picked.length?"":" primary"}" id="wk-pick">${picked.length?"עריכת הבחירה":"בחירת משימות"}</button></div>`;
+    if(!list.length){main.innerHTML=head+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;return}
     main.innerHTML=head+
-      (todo.length?`<section class="group" style="margin-top:14px"><div class="list">${todo.map(t=>taskRow(t,true,false)).join("")}</div></section>`:"")+
+      (allDone?`<div class="alldone"><b>כל המשימות של השבוע הושלמו 🎉</b><span>ההודעה תיעלם ביום שישי, כשיגיע הזמן לעשות אותן שוב.</span></div>`:"")+
+      `<section class="group" style="margin-top:14px"><div class="list">${list.map(t=>taskRow(t,true,false)).join("")}</div></section>`+
       (picked.length?`<div class="wk-foot"><button class="btn ghost" id="wk-clear">ניקוי המשימות שבחרתי</button></div>`:"");
     return;
   }
