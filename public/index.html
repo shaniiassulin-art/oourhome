@@ -321,6 +321,108 @@ details.more summary .count{font-weight:500;font-size:13px;margin-inline-start:8
 .toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .toast button{border:0;background:none;color:var(--accent-soft);font-weight:800;text-decoration:underline}
 .banner{margin-top:12px;font-size:13.5px;color:var(--muted);background:var(--sunk);border-radius:12px;padding:8px 12px}
+/* ---------- compact, quieter pass ---------- */
+body{font-size:15px;line-height:1.4}
+.wrap{padding-block:16px calc(180px + env(safe-area-inset-bottom,0px))}
+header.top{margin-top:-16px;padding-block:12px 6px}
+h1{font-size:21px;letter-spacing:.01em}
+.hbtns{gap:4px}
+.refresh{width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:50%;border-color:var(--line);background:transparent;color:var(--muted)}
+.refresh svg{width:17px;height:17px}
+.date{font-size:12.5px}
+.date b{font-weight:600}
+.area{margin-top:12px;border-radius:11px;padding:3px}
+.area button{padding:6px 8px;font-size:14px;font-weight:600;border-radius:9px}
+.tools{margin-top:12px;gap:8px}
+.search{border-radius:10px;padding:0 10px}
+.search input{padding:8px 0;font-size:15px}
+.search svg{width:16px;height:16px}
+.tabs-scroll{gap:16px}
+.tabs button.tab{font-size:14px;padding:7px 0 8px;font-weight:600}
+.tabs .n{font-size:11px;padding:0 5px}
+.tabs .pages-btn{width:30px}
+.tabs .pages-btn svg{width:17px;height:17px}
+.page-head{margin-top:16px}
+.page-head b{font-size:17px}
+.page-head span{font-size:12.5px}
+.page-head .btn{padding:7px 12px;font-size:13.5px;border-radius:10px}
+.btn.ibtn,.head-tools .btn.ibtn{width:36px;height:36px;border-radius:10px;color:var(--muted)}
+.btn.ibtn svg{width:19px;height:19px;stroke-width:1.9}
+.btn.ibtn.on{color:var(--ink)}
+.btn.ibtn .dotn{top:-5px;left:-5px;min-width:16px;height:16px;font-size:10.5px}
+.toolbar{margin-top:12px}
+.toolbar .btn,.btn.ghost{font-size:13px}
+.active-f{margin-top:8px}
+.active-f button{font-size:12.5px;padding:4px 9px 4px 7px}
+.group{margin-top:16px}
+.group h2{font-size:13px;margin-bottom:2px}
+.group.cat{margin-top:10px;border-radius:14px;padding:8px 12px 2px}
+.group.cat h2{font-size:14px;font-weight:700}
+.group.cat h2 .dot,.group h2 .dot{width:6px;height:6px}
+.row{gap:10px;padding:9px 0}
+.check{width:22px;height:22px;border-width:1.5px}
+.check svg{width:12px;height:12px}
+.name{font-size:15px;font-weight:500}
+.meta{font-size:12px;margin-top:0}
+.pill{font-size:12px;font-weight:600}
+.wk{font-size:10.5px;padding:0 6px;font-weight:700}
+.sect{margin-top:18px}
+.sect-h b{font-size:18px}
+.sect-h .cnt{font-size:12.5px}
+.sect-h::after{width:7px;height:7px}
+.cat-h{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:2px 0 4px;text-align:right;color:var(--cc);font-size:14px;font-weight:700}
+.cat-h .dot{width:6px;height:6px;border-radius:50%;background:var(--cc);flex:none}
+.cat-h .cnt{opacity:.65;font-weight:600}
+.cat-h::after{content:"";margin-inline-start:auto;width:6px;height:6px;border-left:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-45deg) translateY(-2px);opacity:.7;transition:transform .2s}
+.group.cat.closed{padding-bottom:6px}
+.group.cat.closed .cat-h{padding-bottom:0}
+.group.cat.closed .cat-h::after{transform:rotate(45deg)}
+.group.cat.closed .list{display:none}
+.addrow{gap:10px;padding:6px 0 8px}
+.addrow .plus{width:22px;height:22px;font-size:13px}
+.addrow input{font-size:15px;padding:4px 0}
+.empty{padding:28px 16px}
+.empty b{font-size:15.5px}
+.alldone{padding:10px 12px;border-radius:12px}
+.alldone b{font-size:14.5px}
+.note,.banner{font-size:12.5px;padding:7px 10px;border-radius:10px}
+.hrow{font-size:14.5px;padding:8px 0}
+.dayhead{font-size:12px;margin:12px 0 4px}
+.fab{width:48px;height:48px;box-shadow:0 4px 14px rgba(0,0,0,.16)}
+.fab svg{width:20px;height:20px}
+.sheet{border-radius:20px 20px 0 0}
+.sheet h3{font-size:19px}
+.sheet .sub{font-size:12.5px;margin-bottom:10px}
+.sheet-x{width:32px;height:32px;top:4px}
+.sheet-x svg{width:15px;height:15px}
+.field{margin-bottom:12px}
+.field label,.field .lab,.fgroup .lab{font-size:13px;font-weight:600;margin-bottom:5px}
+.field input,.field select,.field textarea{padding:9px 11px;border-radius:10px;font-size:15px}
+.datebtn{min-height:40px;padding:8px 11px;border-radius:10px;font-size:14.5px}
+.datebtn::before{width:16px;height:16px}
+.opts{gap:5px}
+.opts button,.types button{padding:5px 11px;font-size:13.5px;font-weight:600}
+.opts input{width:76px;padding:5px 9px}
+.quick{gap:6px;margin-bottom:12px}
+.quick .btn{min-height:48px;padding:6px 8px;font-size:14px;border-radius:11px}
+.quick .btn small{font-size:11.5px}
+.btn{font-size:14px;padding:9px 10px;border-radius:11px}
+.btn.small{padding:7px 12px;font-size:13px}
+details.more summary{font-size:14px;padding:11px 0}
+.guess,.histmini{font-size:12.5px}
+.picker{border-radius:18px;padding:12px}
+.pk-head b{font-size:17px}
+.pk-nav{width:34px;height:34px}
+.pk-grid button{font-size:14.5px}
+.ord-list li{border-radius:10px;padding:4px;padding-inline-start:10px;gap:6px}
+.ord-list .nm{font-size:14px;font-weight:600}
+.ord-list button.ib{width:32px;height:32px;border-radius:8px}
+.ord-list button.ib svg{width:15px;height:15px}
+.ord-list .sw{width:20px;height:20px}
+.ord-list .txtb{height:32px;font-size:13px}
+.ord-list li.sechead{font-size:15px}
+.ord-hint{font-size:12.5px}
+.toast{font-size:13.5px;padding:8px 12px;border-radius:12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -328,8 +430,8 @@ details.more summary .count{font-weight:500;font-size:13px;margin-inline-start:8
   <header class="top" id="topbar">
     <h1>הבית שלנו</h1>
     <div class="hbtns">
-      <button class="refresh" id="arch-btn" type="button" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4"/></svg><span>ארכיון</span></button>
-      <button class="refresh" id="refresh" type="button" aria-label="רענון: טעינת השינויים האחרונים"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg><span>רענון</span></button>
+      <button class="refresh" id="arch-btn" type="button" hidden aria-label="ארכיון קניות" title="ארכיון קניות"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4"/></svg></button>
+      <button class="refresh" id="refresh" type="button" aria-label="רענון: טעינת השינויים האחרונים" title="רענון"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
     </div>
   </header>
   <div class="date" id="today"></div>
@@ -758,7 +860,8 @@ function shopSections(items,{showEmpty,adds,secFilter,noHead}){
     let body="",n=0;
     for(const k of cats){const g=items.filter(it=>it.cat===k);if(!g.length&&!showEmpty)continue;n+=g.length;
       const inner=g.map(it=>shopRow(it,["store","note"])).join("")+(adds?addRow(k):"");
-      body+=panel("shop",k,cats.length===1&&catLabel(k)===sec.name?null:esc(catLabel(k)),inner,g.length)}
+      const solo=cats.length===1&&catLabel(k)===sec.name,ck="c:"+k,closed=collapsed.has(ck);
+      body+=solo?panel("shop",k,null,inner,g.length):`<section class="group cat${closed?" closed":""}" style="${catStyle("shop",k)}"><button type="button" class="cat-h" data-collapse="${esc(ck)}" aria-expanded="${!closed}"><span class="dot"></span><span class="t">${esc(catLabel(k))}</span><span class="cnt">${g.length}</span></button><div class="list">${inner}</div></section>`}
     if(!body)continue;
     if(noHead){h+=body;continue}
     h+=`<section class="sect${collapsed.has(sec.id)?" closed":""}"><button type="button" class="sect-h" data-collapse="${sec.id}" aria-expanded="${!collapsed.has(sec.id)}"><b>${esc(sec.name)}</b><span class="cnt">${n}</span></button><div class="sect-b">${body}</div></section>`;
