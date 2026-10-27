@@ -146,6 +146,8 @@ main.slide-prev{animation:slideP .22s ease}
 
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;flex-wrap:wrap}
 .toolbar .btn{display:flex;align-items:center;gap:6px;padding:7px 12px;font-size:14px}
+.head-tools{display:flex;gap:6px;flex:none}
+.page-head>div:first-child{min-width:0}
 .btn.ibtn{position:relative;width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:12px}
 .btn.ibtn svg{width:19px;height:19px}
 .btn.ibtn.on{border-color:var(--ink)}
@@ -483,6 +485,7 @@ const IC={
   pen:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
   bin:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
   filter:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>',
+  tags:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h7l9 9-7 7-9-9z"/><circle cx="8.5" cy="9.5" r="1.5"/></svg>',
   cats:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></svg>'
 };
 
@@ -780,6 +783,11 @@ function renderTabs(){
   $("#tabs").innerHTML=pages.map(id=>`<button type="button" class="tab" data-page="${id}" aria-current="${id===page?"page":"false"}"><bdi>${esc(pageName(id))}</bdi>${id==="week"&&n?`<span class="n">${n}</span>`:""}${id==="shop10"&&s10?`<span class="n">${s10}</span>`:""}</button>`).join("");
   const a=$(`#tabs [data-page="${CSS.escape(page)}"]`);if(a&&page!==lastPage)a.scrollIntoView({block:"nearest",inline:"nearest"});
 }
+function toolIcons(dom,f){
+  const n=activeCount(dom,f);
+  const sortL=dom==="shop"?({added:"סדר ההוספה",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
+  return `<div class="head-tools"><button type="button" class="btn ibtn${n?" on":""}" data-fsmode="filter" aria-label="סינון${n?`, ${n} פעילים`:""}" title="סינון">${IC.filter}${n?`<span class="dotn">${n}</span>`:""}</button><button type="button" class="btn ibtn" data-fsmode="sort" aria-label="מיון: ${esc(sortL||"")}" title="מיון: ${esc(sortL||"")}">${IC.cats}</button><button type="button" class="btn ibtn" data-manage="${dom}" aria-label="ניהול קטגוריות" title="ניהול קטגוריות">${IC.tags}</button></div>`;
+}
 function toolbar(dom,f){
   const n=activeCount(dom,f);
   const sortL=dom==="shop"?({added:"סדר ההוספה",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
@@ -862,7 +870,7 @@ function renderShopList(f){
   const items=open.filter(it=>shopMatch(it,f));
   items.sort(f.sort==="new"?(a,b)=>(b.created||"").localeCompare(a.created||""):f.sort==="name"?(a,b)=>a.name.localeCompare(b.name,"he"):(a,b)=>(a.created||"").localeCompare(b.created||""));
   const sp=secPageId();
-  const h=`<div class="page-head"><div><b>${esc(v?v.name:sp?secName(sp):"קניות")}</b><span>${v||sp?`${items.length} מוצרים`:open.length?`${open.length} מוצרים ברשימה`:"הרשימה ריקה"}</span></div></div>`+toolbar("shop",f);
+  const h=`<div class="page-head"><div><b>${esc(v?v.name:sp?secName(sp):"קניות")}</b><span>${v||sp?`${items.length} מוצרים`:open.length?`${open.length} מוצרים ברשימה`:"הרשימה ריקה"}</span></div>${toolIcons("shop",f)}</div>`+activeChips("shop",f);
   const plainView=!activeCount("shop",f)&&!query.trim();
   if(f.group==="cat"&&sp&&!sections().some(x=>x.id===sp))return h;
   if(f.group==="cat")return h+(items.length||plainView?shopSections(items,{showEmpty:plainView,adds:true,secFilter:f.sec,noHead:!!sp}):`<div class="empty"><b>אין מוצרים שמתאימים</b>אפשר לשנות את החיפוש או הסינון.</div>`);
