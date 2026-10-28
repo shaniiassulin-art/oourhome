@@ -333,6 +333,8 @@ body{font-size:15px;line-height:1.4}
 header.top{margin-top:-16px;padding-block:12px 6px}
 h1{font-size:21px;letter-spacing:.01em}
 .hbtns{gap:4px}
+.refresh.on{background:var(--sunk);color:var(--ink)}
+.search[hidden]{display:none!important}
 .refresh{width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:50%;border-color:var(--line);background:transparent;color:var(--muted)}
 .refresh svg{width:17px;height:17px}
 .date{font-size:12.5px}
@@ -497,6 +499,7 @@ body.is-dragging{user-select:none;-webkit-user-select:none}
     <h1>הבית שלנו</h1>
     <div class="hbtns">
       <button class="refresh" id="arch-btn" type="button" hidden aria-label="ארכיון קניות" title="ארכיון קניות"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4"/></svg></button>
+      <button class="refresh" id="search-btn" type="button" aria-label="חיפוש" title="חיפוש" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
       <button class="refresh" id="refresh" type="button" aria-label="רענון: טעינת השינויים האחרונים" title="רענון"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
     </div>
   </header>
@@ -505,7 +508,7 @@ body.is-dragging{user-select:none;-webkit-user-select:none}
   <div class="banner" id="banner" hidden></div>
 
   <div class="tools">
-    <div class="search">
+    <div class="search" id="search-box" hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="חיפוש" autocomplete="off" aria-label="חיפוש">
     </div>
@@ -783,6 +786,7 @@ function catStyle(dom,k){const n=catNum(dom,k);return `--cc:var(--c${n});--cbg:v
 const SECTIONS0=[{id:"urgent",name:"דחוף"},{id:"home",name:"בית"},{id:"shani",name:"שני"}];
 /* main shopping categories: editable, each can also be shown as its own page */
 const sections=()=>settings.shopSections||SECTIONS0;
+const secIsPage=x=>x.page===true||((x.id==="urgent"||x.name==="דחוף")&&x.page!==false);
 const SHANI_DEFAULT=["אייהרב","שיין לשני","טיפוח ובריאות","סופר פארם","בגדים"];
 const secName=id=>sections().find(x=>x.id===id)?.name||"";
 function sectionOf(k){
@@ -819,13 +823,13 @@ const PAGE_AREA={week:"tasks",cats:"tasks",history:"tasks",shop:"shop",shop10:"s
 const views=()=>settings.views||[];
 let area="tasks";const areaPage={tasks:null,shop:null};
 function pageList(a=area){
-  const ids=[...Object.keys(PAGES).filter(id=>PAGE_AREA[id]===a),...(a==="shop"?sections().filter(x=>x.page).map(x=>"sec:"+x.id):[]),...views().filter(v=>v.dom===a).map(v=>v.id)];
+  const ids=[...Object.keys(PAGES).filter(id=>PAGE_AREA[id]===a),...(a==="shop"?sections().filter(secIsPage).map(x=>"sec:"+x.id):[]),...views().filter(v=>v.dom===a).map(v=>v.id)];
   const ord=(settings.pages||[]).filter(id=>ids.includes(id));
   for(const id of ids)if(!ord.includes(id))ord.push(id);
   return ord;
 }
 function setPageOrder(list){const other=area==="tasks"?"shop":"tasks";writeSettings({...settings,pages:[...list,...pageList(other)]})}
-function switchArea(a){userNavigated=true;if(a===area)return;areaPage[area]=page;area=a;page=areaPage[a]&&pageList(a).includes(areaPage[a])?areaPage[a]:pageList(a)[0];query="";$("#q").value="";render();window.scrollTo(0,0)}
+function switchArea(a){userNavigated=true;if(a===area)return;areaPage[area]=page;area=a;page=areaPage[a]&&pageList(a).includes(areaPage[a])?areaPage[a]:pageList(a)[0];query="";$("#q").value="";$("#search-box").hidden=true;$("#search-btn").setAttribute("aria-expanded","false");$("#search-btn").classList.remove("on");render();window.scrollTo(0,0)}
 const pageName=id=>PAGES[id]||(id?.startsWith("sec:")?secName(id.slice(4)):null)||views().find(v=>v.id===id)?.name||"דף";
 const secPageId=()=>page?.startsWith("sec:")?page.slice(4):null;
 const viewOf=id=>views().find(v=>v.id===id);
@@ -841,8 +845,8 @@ try{const s2=JSON.parse(localStorage.getItem("house-filters2")||"null"),s1=JSON.
   if(s2)localF={tasks:{...TF0,...s2.tasks},shop:{...SF0,...s2.shop}};else if(s1)localF={tasks:{...TF0,...s1.tasks},shop:{...SF0}}}catch(e){}
 function saveLocalF(){try{localStorage.setItem("house-filters2",JSON.stringify(localF))}catch(e){}}
 function currentF(){const v=viewOf(page);if(v)return{dom:v.dom,f:{...(v.dom==="shop"?SF0:TF0),...v.f}};
-  const sp=secPageId();if(sp)return{dom:"shop",f:{...SF0,...(localF[page]||{}),sec:sp}};
-  const dom=domOfPage(page);return{dom,f:localF[dom]}}
+  const sp=secPageId();if(sp)return{dom:"shop",f:{...SF0,sec:sp}};
+  const dom=domOfPage(page);return{dom,f:dom==="shop"?{...SF0}:localF[dom]}}
 function setF(dom,f){const v=viewOf(page);if(v)writeSettings({...settings,views:views().map(x=>x.id===v.id?{...x,f}:x)});
   else if(secPageId()){localF[page]={...f,sec:null};saveLocalF();render(true)}
   else{localF[dom]=f;saveLocalF();render(true)}}
@@ -962,13 +966,14 @@ function renderTabs(){
   const a=$(`#tabs [data-page="${CSS.escape(page)}"]`);if(a&&page!==lastPage)a.scrollIntoView({block:"nearest",inline:"nearest"});
 }
 function toolIcons(dom,f){
+  if(dom==="shop")return `<div class="head-tools"><button type="button" class="btn ibtn" data-manage="shop" aria-label="ניהול קטגוריות" title="ניהול קטגוריות">${IC.tags}</button></div>`;
   const n=activeCount(dom,f);
-  const sortL=dom==="shop"?({added:"הסדר שלי",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
+  const sortL=dom==="shop"?({added:"הסדר שלי",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
   return `<div class="head-tools"><button type="button" class="btn ibtn${n?" on":""}" data-fsmode="filter" aria-label="סינון${n?`, ${n} פעילים`:""}" title="סינון">${IC.filter}${n?`<span class="dotn">${n}</span>`:""}</button><button type="button" class="btn ibtn" data-fsmode="sort" aria-label="מיון: ${esc(sortL||"")}" title="מיון: ${esc(sortL||"")}">${IC.cats}</button><button type="button" class="btn ibtn" data-manage="${dom}" aria-label="ניהול קטגוריות" title="ניהול קטגוריות">${IC.tags}</button></div>`;
 }
 function toolbar(dom,f){
   const n=activeCount(dom,f);
-  const sortL=dom==="shop"?({added:"הסדר שלי",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
+  const sortL=dom==="shop"?({added:"הסדר שלי",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
   return `<div class="toolbar"><div style="display:flex;gap:6px"><button type="button" class="btn ibtn${n?" on":""}" data-fsmode="filter" aria-label="סינון${n?`, ${n} פעילים`:""}" title="סינון">${IC.filter}${n?`<span class="dotn">${n}</span>`:""}</button><button type="button" class="btn ibtn" data-fsmode="sort" aria-label="מיון: ${esc(sortL||"")}" title="מיון: ${esc(sortL||"")}">${IC.cats}</button></div><button type="button" class="btn ghost" data-manage="${dom}">ניהול קטגוריות</button></div>${activeChips(dom,f)}`;
 }
 function render(soft){
@@ -1060,7 +1065,7 @@ function renderShopList(f){
   const plainView=!activeCount("shop",f)&&!query.trim();
   if(f.group==="cat"&&sp&&!sections().some(x=>x.id===sp))return h;
   if(f.group==="cat")return h+(items.length||plainView?shopSections(items,{showEmpty:plainView,adds:true,secFilter:f.sec,noHead:!!sp}):`<div class="empty"><b>אין מוצרים שמתאימים</b>אפשר לשנות את החיפוש או הסינון.</div>`);
-  if(!items.length)return h+`<div class="empty"><b>${open.length?"אין מוצרים שמתאימים":"אין מוצרים ברשימה"}</b>${open.length?"אפשר לשנות את החיפוש או הסינון.":"לחצי על + כדי להוסיף מוצר."}</div>`;
+  if(!items.length)return h+`<div class="empty"><b>${open.length?"אין מוצרים שמתאימים":"אין מוצרים ברשימה"}</b>${open.length?"אפשר לשנות את החיפוש או הסינון.":"אפשר להוסיף מוצר בשורת ההוספה שבסוף כל קטגוריה."}</div>`;
   if(f.group==="store"){const stores=[...new Set(items.map(storeOf))].sort((a,b)=>(!a)-(!b)||a.localeCompare(b,"he"));return h+stores.map(s=>{const g=items.filter(it=>storeOf(it)===s);return plain(esc(s||"בלי חנות"),g.map(it=>shopRow(it,["cat","note"])).join(""),g.length)}).join("")}
   return h+`<section class="group"><div class="list">${items.map(it=>shopRow(it,["cat","store","note"])).join("")}</div></section>`;
 }
@@ -1134,6 +1139,10 @@ document.addEventListener("click",e=>{
   const mg=t.closest("[data-manage]");if(mg){openManage(mg.dataset.manage);return}
 });
 $("#q").addEventListener("input",e=>{query=e.target.value;render(true)});
+function setSearch(on){const box=$("#search-box");box.hidden=!on;$("#search-btn").setAttribute("aria-expanded",on);$("#search-btn").classList.toggle("on",on);
+  if(on){$("#q").focus()}else{if(query){query="";$("#q").value="";render(true)}$("#q").blur()}}
+$("#search-btn").onclick=()=>setSearch($("#search-box").hidden);
+$("#q").addEventListener("keydown",e=>{if(e.key==="Escape")setSearch(false)});
 $("#add").onclick=()=>openSheet(null);
 function saveShopEdit(){
   const id=shopEdit,f=document.querySelector(`[data-editform="${CSS.escape(id||"")}"]`);shopEdit=null;
@@ -1245,12 +1254,11 @@ function openSheet(id){
   const h=t.history||[];
   if(h.length>1){const gaps=h.slice(0,-1).map((d,i)=>diff(d,h[i+1]));const avg=Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);$("#sh-hist").textContent=h.slice(0,8).map(fmt).join(" · ")+`  —  בממוצע כל ${avg} ימים`}
   else $("#sh-hist").textContent=h.map(fmt).join(" · ");
-  try{$("#sh-more").open=localStorage.getItem("house-more")==="1"}catch(e){}
+  $("#sh-more").open=false;
   updateDates();
   openLayer("#sheet");$("#sheet").scrollTop=0;
   if(!id)setTimeout(()=>$("#f-name").focus(),250);
 }
-$("#sh-more").addEventListener("toggle",()=>{try{localStorage.setItem("house-more",$("#sh-more").open?"1":"0")}catch(e){}});
 $("#sh-save").onclick=()=>{
   if(editId){closeLayers();return}
   const d=draft(),miss=[];
@@ -1340,7 +1348,7 @@ function renderFilter(){
     $("#fs-sub").textContent="איך לחלק ולסדר את הרשימה. הסינון נשאר כמו שהוא.";
     if(dom==="tasks"){
       h+=`<div class="fgroup"><span class="lab">חלוקה</span><div class="opts">${optBtns("group",[["cat","לפי קטגוריות"],["room","לפי חדרים"],["int","לפי תדירות"],["none","בלי חלוקה"]],f.group)}</div></div>`;
-      h+=`<div class="fgroup"><span class="lab">סדר</span><div class="opts">${optBtns("sort",[["default","תדירות ואז איחור"],["late","האיחור הגדול קודם"],["name","לפי שם"]],f.sort)}</div></div>`;
+      h+=`<div class="fgroup"><span class="lab">סדר</span><div class="opts">${optBtns("sort",[["default","תדירות"],["late","האיחור הגדול קודם"],["name","לפי שם"]],f.sort)}</div></div>`;
     }else{
       h+=`<div class="fgroup"><span class="lab">חלוקה</span><div class="opts">${optBtns("group",[["cat","קטגוריות ראשיות וקטגוריות"],["store","לפי חנויות"],["none","בלי חלוקה"]],f.group)}</div></div>`;
       h+=`<div class="fgroup"><span class="lab">סדר</span><div class="opts">${optBtns("sort",[["added","הסדר שלי"],["new","החדשים קודם"],["name","לפי שם"]],f.sort)}</div></div>`;
@@ -1422,11 +1430,11 @@ function renderManage(){
     $("#ord-add").hidden=false;$("#ord-add-sec").hidden=true;$("#ord-add-in").placeholder="קטגוריה ראשית חדשה";
     const list=sections(),cl=catList("shop");
     $("#ord-list").innerHTML=list.map((x,i)=>{const n=cl.filter(k=>sectionOf(k)===x.id).length;
-      if(mEdit==="sec:"+x.id)return `<li class="editing"><input type="text" id="ord-in" maxlength="24" value="${esc(x.name)}" aria-label="שם הקטגוריה הראשית"><button type="button" class="txtb" data-ssave="${x.id}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button><label class="chk" style="color:var(--ink)"><input type="checkbox" id="ord-secpage"${x.page?" checked":""}>להציג כדף נפרד בקניות</label></li>`;
+      if(mEdit==="sec:"+x.id)return `<li class="editing"><input type="text" id="ord-in" maxlength="24" value="${esc(x.name)}" aria-label="שם הקטגוריה הראשית"><button type="button" class="txtb" data-ssave="${x.id}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button><label class="chk" style="color:var(--ink)"><input type="checkbox" id="ord-secpage"${secIsPage(x)?" checked":""}>להציג כדף נפרד בקניות</label></li>`;
       if(mDel==="sec:"+x.id){const others=list.filter(o=>o.id!==x.id);
         if(!others.length)return `<li><span class="txt" style="color:var(--ink)">אי אפשר למחוק את הקטגוריה הראשית האחרונה.</span><button type="button" class="txtb plain" data-cancel="1">סגירה</button></li>`;
         return `<li>${n?`<span class="txt" style="color:var(--ink)">ב"${esc(x.name)}" יש ${n} קטגוריות. לאן להעביר אותן?</span><select id="ord-smove" aria-label="להעביר אל">${others.map(o=>`<option value="${o.id}">${esc(o.name)}</option>`).join("")}</select>`:`<span class="nm">למחוק את "${esc(x.name)}"?</span>`}<button type="button" class="txtb danger" data-sdelok="${x.id}">מחיקה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button></li>`}
-      return `<li><span class="nm">${esc(x.name)}<span class="always">${n} קטגוריות${x.page?" · מופיעה כדף":""}</span></span><button type="button" class="ib" data-sren="${x.id}" aria-label="שינוי שם">${IC.pen}</button><button type="button" class="ib" data-sdel="${x.id}" aria-label="מחיקה">${IC.bin}</button><button type="button" class="ib" data-smv="${x.id}" data-d="-1" aria-label="הזזה למעלה"${i===0?" disabled":""}>${IC.up}</button><button type="button" class="ib" data-smv="${x.id}" data-d="1" aria-label="הזזה למטה"${i===list.length-1?" disabled":""}>${IC.dn}</button></li>`}).join("");
+      return `<li><span class="nm">${esc(x.name)}<span class="always">${n} קטגוריות${secIsPage(x)?" · מופיעה כדף":""}</span></span><button type="button" class="ib" data-sren="${x.id}" aria-label="שינוי שם">${IC.pen}</button><button type="button" class="ib" data-sdel="${x.id}" aria-label="מחיקה">${IC.bin}</button><button type="button" class="ib" data-smv="${x.id}" data-d="-1" aria-label="הזזה למעלה"${i===0?" disabled":""}>${IC.up}</button><button type="button" class="ib" data-smv="${x.id}" data-d="1" aria-label="הזזה למטה"${i===list.length-1?" disabled":""}>${IC.dn}</button></li>`}).join("");
     const inp=$("#ord-in");if(inp){inp.focus();inp.select()}
     return;
   }
