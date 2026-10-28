@@ -1207,7 +1207,7 @@ function updateDates(){
 }
 function renderWhen(){
   const f=lastFriday();
-  $("#f-when").innerHTML=`<button type="button" data-when="today" aria-pressed="${whenSel==="today"}">בוצעה היום</button>${f===TODAY?"":`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">בוצעה בשישי האחרון (${fmtShort(f)})</button>`}<button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף למשימות השבוע</button>`;
+  $("#f-when").innerHTML=`<button type="button" data-when="today" aria-pressed="${whenSel==="today"}">בוצע היום</button>${f===TODAY?"":`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">בוצע בשישי האחרון (${fmtShort(f)})</button>`}<button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף למשימות השבוע</button>`;
 }
 $("#f-when").addEventListener("click",e=>{const b=e.target.closest("[data-when]");if(!b)return;const was=whenSel;whenSel=whenSel===b.dataset.when?null:b.dataset.when;
   const wd=w=>w==="today"?TODAY:w==="friday"?lastFriday():null;
@@ -1226,7 +1226,7 @@ function saveEdit(){
   writeDoc(editId,next);renderWeekBtn(next);$("#sh-title").textContent=d.name;
   const sub=$("#sh-sub");sub.textContent="נשמר ✓";sub.classList.add("saved");
 }
-function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצעה היום</span><small>${fmtShort(TODAY)}</small>`;$("#sh-fri").hidden=f===TODAY;$("#sh-fri").innerHTML=`<span>✓ בוצעה בשישי</span><small>${fmtShort(f)}</small>`}
+function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצע היום</span>`;$("#sh-fri").hidden=f===TODAY;$("#sh-fri").innerHTML=`<span>✓ בוצע בשישי</span><small>${fmtShort(f)}</small>`}
 function renderWeekBtn(t){const b=$("#sh-week"),fixed=t&&isAlways(catKeyOf("tasks",t));b.disabled=!!fixed;
   b.innerHTML=fixed?`<span>משימות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ נבחרה לשבוע</span>`:`<span>+ הוספה לשבוע</span><small>למשימות השבוע</small>`;
   b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
