@@ -450,6 +450,7 @@ details.more summary{font-size:14px;padding:11px 0}
 .sheet-del.arm{background:var(--late);color:#fff}
 .sheet-del span:empty{display:none}
 #psheet h3{padding-left:90px}
+.fab{bottom:calc(20px + env(safe-area-inset-bottom,0px));left:calc(18px + env(safe-area-inset-left,0px))}
 .tabs-scroll{gap:12px}
 .tabs button.tab{font-size:13px}
 .tabs .pages-btn{margin-inline-start:6px;width:26px}
@@ -961,7 +962,7 @@ function renderTaskList(f){
   const v=viewOf(page);
   const items=allTasks().filter(t=>taskMatch(t,f));
   items.sort(f.sort==="late"?(a,b)=>(a.rem??1e9)-(b.rem??1e9)||defaultSort(a,b):f.sort==="name"?(a,b)=>a.name.localeCompare(b.name,"he"):defaultSort);
-  const h=(v?`<div class="page-head"><div><b>${esc(v.name)}</b><span>${items.length} משימות</span></div></div>`:"")+toolbar("tasks",f);
+  const h=`<div class="page-head"><div><b>${esc(v?v.name:"כל המשימות")}</b><span>${items.length===tasks.size?`${tasks.size} משימות`:`${items.length} מתוך ${tasks.size} משימות`}</span></div>${toolIcons("tasks",f)}</div>`+activeChips("tasks",f);
   if(!tasks.size)return h+`<div class="empty"><b>עוד אין משימות</b>לחצי על + כדי להוסיף את הראשונה.</div>`;
   if(!items.length)return h+`<div class="empty"><b>אין משימות שמתאימות</b>אפשר לשנות את החיפוש או הסינון.</div>`;
   if(f.group==="cat")return h+catPanels("tasks",items,t=>taskRow(t,["room","int"]));
