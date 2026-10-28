@@ -426,6 +426,35 @@ details.more summary{font-size:14px;padding:11px 0}
 .ord-list li.sechead{font-size:15px}
 .ord-hint{font-size:12.5px}
 .toast{font-size:13.5px;padding:8px 12px;border-radius:12px}
+/* ---------- colour only in text: no tinted blocks ---------- */
+.group.cat{background:transparent;border-radius:0;padding:0;margin-top:20px}
+.group.cat .list{border-top:1px solid var(--line)}
+.group.cat .row{border-bottom-color:var(--line)}
+.group.cat .row:last-child{border-bottom:1px solid var(--line)}
+.group.cat h2,.cat-h{font-size:13px;font-weight:700;letter-spacing:.02em;padding-bottom:6px}
+.group.cat.closed{padding-bottom:0}
+.group.cat.closed .cat-h{padding-bottom:6px;border-bottom:1px solid var(--line)}
+.group.cat .check{border-color:var(--cc);opacity:.6}
+.group.cat .row+.addrow,.group.cat .list>.addrow:not(:first-child){border-top:0}
+.addrow .plus{border-color:var(--line);color:var(--muted);opacity:1}
+.addrow input::placeholder{color:var(--muted);opacity:.8}
+.sect{margin-top:24px}
+.sect .group.cat:first-child{margin-top:6px}
+.wk{background:transparent;border:1px solid currentColor;opacity:.85}
+.btn.wk-on{background:transparent;border-color:var(--wk);color:var(--wk)}
+.tenbtn[aria-pressed="true"]{background:transparent}
+.types button[aria-pressed="true"]{background:var(--sunk)}
+.ord-list li{background:var(--sunk)}
+.alldone{background:transparent;border:1px solid var(--line)}
+.sheet-del{position:absolute;top:4px;left:38px;height:32px;min-width:32px;border-radius:16px;border:0;background:var(--sunk);color:var(--muted);display:flex;align-items:center;justify-content:center;gap:4px;padding:0 9px;font-weight:700;font-size:13px}
+.sheet-del.arm{background:var(--late);color:#fff}
+.sheet-del span:empty{display:none}
+#psheet h3{padding-left:90px}
+.tabs-scroll{gap:12px}
+.tabs button.tab{font-size:13px}
+.tabs .pages-btn{margin-inline-start:6px;width:26px}
+.tenbtn{border-color:transparent;opacity:.5}
+.tenbtn[aria-pressed="true"]{border-color:var(--wk)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -499,6 +528,7 @@ details.more summary{font-size:14px;padding:11px 0}
   <div class="sheet-in">
     <div class="grab"></div>
     <button type="button" class="sheet-x" data-close="1" aria-label="סגירה"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <button type="button" class="sheet-del" id="ps-del" aria-label="מחיקת המוצר" title="מחיקת המוצר"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span></span></button>
     <h3 id="ps-title"></h3>
     <div class="sub" id="ps-sub"></div>
     <div class="quick" id="ps-quick">
@@ -516,7 +546,6 @@ details.more summary{font-size:14px;padding:11px 0}
     <div class="field"><label for="p-notes">הערה <span class="opt">(לא חובה)</span></label><textarea id="p-notes" placeholder="מותג, גודל, כמה יחידות"></textarea></div>
     <div class="foot">
       <button class="btn primary" id="ps-save"></button>
-      <button class="btn danger small" id="ps-del">מחיקת המוצר</button>
     </div>
   </div>
 </div>
@@ -750,7 +779,7 @@ function guessCat(dom,name){
 
 /* ---------- pages ---------- */
 /* two areas, each with its own pages: house tasks and shopping */
-const PAGES={week:"לעשות השבוע",cats:"משימות",history:"מה עשינו",shop:"קניות",shop10:"אחרי ה־10"};
+const PAGES={week:"משימות השבוע",cats:"כל המשימות",history:"משימות שבוצעו",shop:"רשימת הקניות",shop10:"אחרי ה־10 בחודש"};
 const PAGE_AREA={week:"tasks",cats:"tasks",history:"tasks",shop:"shop",shop10:"shop"};
 const views=()=>settings.views||[];
 let area="tasks";const areaPage={tasks:null,shop:null};
@@ -956,8 +985,8 @@ function renderWeek(){
   const fixed=all.filter(t=>isAlways(catKeyOf("tasks",t))),fixedTodo=fixed.filter(t=>!doneThisWeek(t));
   const picked=all.filter(t=>t.thisWeek&&!isAlways(catKeyOf("tasks",t)));
   const list=[...fixed,...picked].sort(defaultSort),left=fixedTodo.length+picked.length,allDone=!left&&fixed.length>0;
-  let h=`<div class="page-head"><div><b>לעשות השבוע</b><span>${left?`נשארו ${left} משימות`:allDone?"כל המשימות הושלמו":"עוד לא נבחרו משימות"}</span></div><button class="btn${picked.length?"":" primary"}" id="wk-pick">${picked.length?"עריכת הבחירה":"בחירת משימות"}</button></div>`;
-  if(!list.length)return h+`<div class="empty"><b>הרשימה של השבוע ריקה</b>לחצי על "בחירת משימות" ובחרי מכל קטגוריה מה לעשות השבוע.</div>`;
+  let h=`<div class="page-head"><div><b>משימות השבוע</b><span>${left?`נשארו ${left} משימות`:allDone?"כל המשימות הושלמו":"אין משימות לשבוע הזה"}</span></div></div>`;
+  if(!list.length)return h+`<div class="empty"><b>אין משימות לשבוע הזה</b>בחלון של כל משימה אפשר ללחוץ "הוספה לשבוע".</div>`;
   if(allDone)h+=`<div class="alldone"><b>כל המשימות של השבוע הושלמו 🎉</b><span>ההודעה תיעלם ביום שישי, כשיגיע הזמן לעשות אותן שוב.</span></div>`;
   h+=catPanels("tasks",list,t=>taskRow(t,["int"]));
   if(picked.length)h+=`<div class="foot-c"><button class="btn ghost" id="wk-clear">ניקוי המשימות שבחרתי</button></div>`;
@@ -969,7 +998,7 @@ function renderHistory(){
   const recent=ev.filter(e=>diff(TODAY,e.d)<=60&&qmatch(e));
   if(!recent.length)return `<div class="empty"><b>אין ביצועים בחודשיים האחרונים</b>כל סימון "בוצעה" יופיע כאן.</div>`;
   const week=ev.filter(e=>e.d>=weekStart()).length;
-  let h=`<div class="page-head"><div><b>מה עשינו</b><span>מיום שישי בוצעו ${week} משימות</span></div></div>`,cur="";
+  let h=`<div class="page-head"><div><b>משימות שבוצעו</b><span>מיום שישי בוצעו ${week} משימות</span></div></div>`,cur="";
   recent.forEach(e=>{if(e.d!==cur){if(cur)h+="</div>";cur=e.d;const ago=diff(TODAY,e.d);h+=`<div class="dayhead">${ago===0?"היום":ago===1?"אתמול":fmt(e.d)}</div><div class="hist">`}h+=`<div class="hrow"><div>${esc(e.name)}</div></div>`});
   return h+"</div>";
 }
@@ -978,7 +1007,7 @@ function renderShopList(f){
   const items=open.filter(it=>shopMatch(it,f));
   items.sort(f.sort==="new"?(a,b)=>(b.created||"").localeCompare(a.created||""):f.sort==="name"?(a,b)=>a.name.localeCompare(b.name,"he"):(a,b)=>(a.created||"").localeCompare(b.created||""));
   const sp=secPageId();
-  const h=`<div class="page-head"><div><b>${esc(v?v.name:sp?secName(sp):"קניות")}</b><span>${v||sp?`${items.length} מוצרים`:open.length?`${open.length} מוצרים ברשימה`:"הרשימה ריקה"}</span></div>${toolIcons("shop",f)}</div>`+activeChips("shop",f);
+  const h=`<div class="page-head"><div><b>${esc(v?v.name:sp?secName(sp):"רשימת הקניות")}</b><span>${v||sp?`${items.length} מוצרים`:open.length?`${open.length} מוצרים ברשימה`:"הרשימה ריקה"}</span></div>${toolIcons("shop",f)}</div>`+activeChips("shop",f);
   const plainView=!activeCount("shop",f)&&!query.trim();
   if(f.group==="cat"&&sp&&!sections().some(x=>x.id===sp))return h;
   if(f.group==="cat")return h+(items.length||plainView?shopSections(items,{showEmpty:plainView,adds:true,secFilter:f.sec,noHead:!!sp}):`<div class="empty"><b>אין מוצרים שמתאימים</b>אפשר לשנות את החיפוש או הסינון.</div>`);
@@ -989,7 +1018,7 @@ function renderShopList(f){
 function renderShop10(){
   const d=parse(TODAY).getDate(),items=openShop().filter(it=>it.afterTenth&&qmatch(it)).sort((a,b)=>(a.created||"").localeCompare(b.created||""));
   const sub=d>=10?"הגיע ה־10 בחודש, אפשר לקנות":`עוד ${10-d} ${10-d===1?"יום":"ימים"} עד ה־10 בחודש`;
-  const h=`<div class="page-head"><div><b>קניות לאחרי ה־10</b><span>${items.length?`${items.length} מוצרים · ${sub}`:sub}</span></div></div>`;
+  const h=`<div class="page-head"><div><b>אחרי ה־10 בחודש</b><span>${items.length?`${items.length} מוצרים · ${sub}`:sub}</span></div></div>`;
   if(!items.length)return h+`<div class="empty"><b>אין מוצרים לאחרי ה־10</b>במוצר בקניות אפשר לסמן "לקנות אחרי ה־10", והוא יופיע כאן עד שייקנה.</div>`;
   return h+shopSections(items,{showEmpty:false,adds:true});
 }
@@ -1116,7 +1145,7 @@ function updateDates(){
 }
 function renderWhen(){
   const f=lastFriday();
-  $("#f-when").innerHTML=`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">${f===TODAY?"בוצעה היום":`בוצעה בשישי האחרון (${fmtShort(f)})`}</button><button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף ל"לעשות השבוע"</button>`;
+  $("#f-when").innerHTML=`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">${f===TODAY?"בוצעה היום":`בוצעה בשישי האחרון (${fmtShort(f)})`}</button><button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף למשימות השבוע</button>`;
 }
 $("#f-when").addEventListener("click",e=>{const b=e.target.closest("[data-when]");if(!b)return;const was=whenSel;whenSel=whenSel===b.dataset.when?null:b.dataset.when;
   if(whenSel==="friday")setDateBtn($("#f-last"),lastFriday(),"לא הוגדר");
@@ -1136,7 +1165,7 @@ function saveEdit(){
 }
 function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצעה</span><small>${f===TODAY?"היום":`בשישי האחרון · ${fmtShort(f)}`}</small>`}
 function renderWeekBtn(t){const b=$("#sh-week"),fixed=t&&isAlways(catKeyOf("tasks",t));b.disabled=!!fixed;
-  b.innerHTML=fixed?`<span>לעשות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ לעשות השבוע</span>`:`<span>+ לעשות השבוע</span><small>הוספה לרשימה</small>`;
+  b.innerHTML=fixed?`<span>משימות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ נבחרה לשבוע</span>`:`<span>+ הוספה לשבוע</span><small>למשימות השבוע</small>`;
   b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
 function openSheet(id){
   editId=id;delArmed=false;whenSel=null;typeTouched=!!id;$("#sh-del").classList.remove("arm");$("#sh-del").textContent="מחיקת המשימה";
@@ -1206,7 +1235,7 @@ function pSave(){
   writeDoc(pId,next);$("#ps-title").textContent=d.name;const sub=$("#ps-sub");sub.textContent="נשמר ✓";sub.classList.add("saved");
 }
 function openPSheet(id){
-  pId=id;pDelArmed=false;pTouched=!!id;$("#ps-del").classList.remove("arm");$("#ps-del").textContent="מחיקת המוצר";
+  pId=id;pDelArmed=false;pTouched=!!id;$("#ps-del").classList.remove("arm");$("#ps-del span").textContent="";
   ["name","type"].forEach(k=>$("#pw-"+k).classList.remove("err"));
   const it=id?shop.get(id):{name:"",cat:null,store:"",notes:"",afterTenth:false};
   $("#ps-title").textContent=id?it.name:"מוצר חדש";
@@ -1230,7 +1259,7 @@ $("#ps-save").onclick=()=>{
 };
 $("#ps-bought").onclick=()=>{pSave();const id=pId;pId=null;closeLayers();markBought(id)};
 $("#ps-del").onclick=()=>{
-  if(!pDelArmed){pDelArmed=true;$("#ps-del").classList.add("arm");$("#ps-del").textContent="בטוח? לחצי שוב למחיקה";return}
+  if(!pDelArmed){pDelArmed=true;$("#ps-del").classList.add("arm");$("#ps-del span").textContent="למחוק?";return}
   clearTimeout(pTimer);pTimer=null;const id=pId,prev=structuredClone(shop.get(id));pId=null;closeLayers();removeDoc(id);
   showToast(`"${prev.name}" נמחק`,()=>writeDoc(id,prev));
 };
@@ -1353,7 +1382,7 @@ function renderManage(){
     const items=dom==="shop"?[...shop.values()].filter(s=>!s.bought):[...tasks.values()];
     $("#ord-add-sec").hidden=dom!=="shop";$("#ord-add-sec").innerHTML=sections().map(x=>`<option value="${x.id}"${x.id==="home"?" selected":""}>${esc(x.name)}</option>`).join("");
     const rowFor=(k,first,last)=>{const st=catStyle(dom,k),n=items.filter(x=>catKeyOf(dom,x)===k).length;
-      if(k===mEdit)return `<li style="${st}" class="editing"><input type="text" id="ord-in" maxlength="30" value="${esc(catLabel(k))}" aria-label="שם הקטגוריה"><button type="button" class="txtb" data-save="${esc(k)}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button>${dom==="tasks"?`<label class="chk"><input type="checkbox" id="ord-always"${isAlways(k)?" checked":""}>להציג תמיד ב"לעשות השבוע"</label>`:`<label class="chk">שייכת ל: <select id="ord-sec" aria-label="שייכת ל">${sections().map(x=>`<option value="${x.id}"${sectionOf(k)===x.id?" selected":""}>${esc(x.name)}</option>`).join("")}</select></label>`}</li>`;
+      if(k===mEdit)return `<li style="${st}" class="editing"><input type="text" id="ord-in" maxlength="30" value="${esc(catLabel(k))}" aria-label="שם הקטגוריה"><button type="button" class="txtb" data-save="${esc(k)}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button>${dom==="tasks"?`<label class="chk"><input type="checkbox" id="ord-always"${isAlways(k)?" checked":""}>להציג תמיד במשימות השבוע</label>`:`<label class="chk">שייכת ל: <select id="ord-sec" aria-label="שייכת ל">${sections().map(x=>`<option value="${x.id}"${sectionOf(k)===x.id?" selected":""}>${esc(x.name)}</option>`).join("")}</select></label>`}</li>`;
       if(k===mDel){const others=list.filter(x=>x!==k);
         if(!others.length)return `<li style="${st}"><span class="txt">אי אפשר למחוק את הקטגוריה האחרונה.</span><button type="button" class="txtb plain" data-cancel="1">סגירה</button></li>`;
         return `<li style="${st}">${n?`<span class="txt">ב"${esc(catLabel(k))}" יש ${n} ${noun}. לאן להעביר אותם?</span><select id="ord-move" aria-label="קטגוריה להעברה">${others.map(o=>`<option value="${esc(o)}">${esc(catLabel(o))}</option>`).join("")}</select>`:`<span class="nm">למחוק את "${esc(catLabel(k))}"?</span>`}<button type="button" class="txtb danger" data-delok="${esc(k)}">מחיקה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button></li>`}
