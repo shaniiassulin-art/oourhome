@@ -91,7 +91,7 @@ html{scrollbar-gutter:stable;touch-action:manipulation;-webkit-text-size-adjust:
 body.booting{opacity:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;direction:rtl;transition:opacity .15s}
 input,select,textarea{font-size:16px!important}
-.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px calc(180px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px calc(84px + env(safe-area-inset-bottom,0px))}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
@@ -217,7 +217,7 @@ button.hrow{width:100%;background:none;border-width:0 0 1px;border-style:solid;b
 .scrim{position:fixed;inset:0;background:rgba(10,16,13,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
 .scrim.on{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;background:var(--surface);border-radius:24px 24px 0 0;max-height:92%;overflow-y:auto;transform:translateY(105%);transition:transform .25s ease;
-  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:10px calc(84px + env(safe-area-inset-bottom,0px))}
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:10px calc(22px + env(safe-area-inset-bottom,0px))}
 .sheet.on{transform:none}
 .sheet-in{max-width:600px;margin:0 auto}
 .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
@@ -317,7 +317,7 @@ details.more summary .count{font-weight:500;font-size:13px;margin-inline-start:8
 .ord-msg{margin:8px 0 0;color:var(--late);font-size:13.5px;font-weight:600}
 .panel-foot{display:grid;gap:8px;margin-top:12px}
 
-.toast{position:fixed;bottom:calc(148px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 14px;display:flex;gap:14px;align-items:center;transition:.2s;z-index:40;width:max-content;max-width:calc(100% - 32px);font-weight:600}
+.toast{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 14px;display:flex;gap:14px;align-items:center;transition:.2s;z-index:40;width:max-content;max-width:calc(100% - 32px);font-weight:600}
 .toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .toast button{border:0;background:none;color:var(--accent-soft);font-weight:800;text-decoration:underline}
 .banner{margin-top:12px;font-size:13.5px;color:var(--muted);background:var(--sunk);border-radius:12px;padding:8px 12px}
@@ -326,7 +326,7 @@ details.more summary .count{font-weight:500;font-size:13px;margin-inline-start:8
 .tenbtn b{font-weight:700;font-variant-numeric:tabular-nums}
 .tenbtn[aria-pressed="true"]{background:var(--wk-bg);border-color:var(--wk);color:var(--wk);opacity:1}
 body{font-size:15px;line-height:1.4}
-.wrap{padding-block:16px calc(180px + env(safe-area-inset-bottom,0px))}
+.wrap{padding-block:16px calc(84px + env(safe-area-inset-bottom,0px))}
 header.top{margin-top:-16px;padding-block:12px 6px}
 h1{font-size:21px;letter-spacing:.01em}
 .hbtns{gap:4px}
@@ -426,6 +426,34 @@ details.more summary{font-size:14px;padding:11px 0}
 .ord-list li.sechead{font-size:15px}
 .ord-hint{font-size:12.5px}
 .toast{font-size:13.5px;padding:8px 12px;border-radius:12px}
+/* ---------- in-place editing, drag, text toggle ---------- */
+.row.shoprow{grid-template-columns:auto 1fr auto auto;gap:8px}
+.tentxt{border:0;background:none;color:var(--muted);opacity:.45;font-size:11.5px;font-weight:600;padding:4px 2px;white-space:nowrap}
+.tentxt[aria-pressed="true"]{color:var(--wk);opacity:1;font-weight:700}
+.drag{display:grid;place-items:center;width:22px;height:30px;color:var(--muted);opacity:.4;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.row.dragging{opacity:.3}
+.drag-ghost{position:fixed;z-index:50;background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:12px;padding-inline:10px;pointer-events:none;border:0}
+body.is-dragging{user-select:none;-webkit-user-select:none}
+.group.cat.drop-on{outline:2px dashed var(--cc);outline-offset:4px;border-radius:8px}
+.editrow{grid-template-columns:1fr auto;align-items:start;padding:8px 0}
+.editfields{display:flex;flex-direction:column;gap:5px;min-width:0}
+.editfields input{width:100%;min-width:0;border:0;background:var(--sunk);color:var(--ink);border-radius:9px;padding:7px 10px;font:inherit;font-size:15px}
+.edit2{display:flex;gap:5px}
+.edit2 input{font-size:13.5px;padding:6px 9px}
+.edit2 input:first-child{flex:0 0 38%}
+.editbtns{display:flex;flex-direction:column;gap:5px}
+.editbtns button{width:34px;height:34px;border-radius:9px;border:0;display:grid;place-items:center}
+.eok{background:var(--accent);color:var(--accent-ink)}
+.edel{background:var(--sunk);color:var(--late)}
+.editbtns svg{width:15px;height:15px}
+.addok{flex:none;width:30px;height:30px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.addok svg{width:13px;height:13px}
+.addrow input:placeholder-shown~.addok{visibility:hidden}
+.adel{border:0;background:none;color:var(--muted);padding:2px 4px;margin-inline-start:8px;vertical-align:middle;opacity:.6}
+.adel svg{width:14px;height:14px}
+/* undo message: bottom centre, clear of the + button */
+.toast{bottom:calc(18px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 150px)}
+
 /* ---------- colour only in text: no tinted blocks ---------- */
 .group.cat{background:transparent;border-radius:0;padding:0;margin-top:20px}
 .group.cat .list{border-top:1px solid var(--line)}
@@ -791,7 +819,7 @@ function pageList(a=area){
   return ord;
 }
 function setPageOrder(list){const other=area==="tasks"?"shop":"tasks";writeSettings({...settings,pages:[...list,...pageList(other)]})}
-function switchArea(a){if(a===area)return;areaPage[area]=page;area=a;page=areaPage[a]&&pageList(a).includes(areaPage[a])?areaPage[a]:pageList(a)[0];query="";$("#q").value="";render();window.scrollTo(0,0)}
+function switchArea(a){userNavigated=true;if(a===area)return;areaPage[area]=page;area=a;page=areaPage[a]&&pageList(a).includes(areaPage[a])?areaPage[a]:pageList(a)[0];query="";$("#q").value="";render();window.scrollTo(0,0)}
 const pageName=id=>PAGES[id]||(id?.startsWith("sec:")?secName(id.slice(4)):null)||views().find(v=>v.id===id)?.name||"דף";
 const secPageId=()=>page?.startsWith("sec:")?page.slice(4):null;
 const viewOf=id=>views().find(v=>v.id===id);
@@ -865,24 +893,30 @@ function taskRow(t,meta){
     <span class="pill">${remLabel(t.rem)}</span>
   </div>`;
 }
+let shopEdit=null;/* id of the product being edited in place */
 function shopRow(it,meta){
+  if(shopEdit===it.id)return `<form class="row editrow" data-editform="${it.id}" data-id="${it.id}">
+    <span class="editfields"><input type="text" data-keep="en-${it.id}" name="name" value="${esc(it.name)}" aria-label="שם המוצר" enterkeyhint="done" autocomplete="off">
+    <span class="edit2"><input type="text" data-keep="es-${it.id}" name="store" value="${esc(it.store||"")}" placeholder="חנות" aria-label="חנות" autocomplete="off"><input type="text" data-keep="eo-${it.id}" name="notes" value="${esc(it.notes||"")}" placeholder="הערה" aria-label="הערה" autocomplete="off"></span></span>
+    <span class="editbtns"><button type="submit" class="eok" aria-label="שמירה">${IC.check}</button><button type="button" class="edel" data-pdel="${it.id}" aria-label="מחיקת המוצר">${IC.bin}</button></span>
+  </form>`;
   const parts=[];
   for(const m of meta){
     if(m==="cat")parts.push(`<span style="${catStyle("shop",it.cat)}"><i class="cd"></i>${esc(catLabel(it.cat))}</span>`);
     if(m==="store"&&storeOf(it)&&!catLabel(it.cat).startsWith(storeOf(it)))parts.push(`<span>${esc(storeOf(it))}</span>`);
     if(m==="note"&&it.notes)parts.push(`<span>${esc(it.notes)}</span>`);
   }
-  const ten="";
-  return `<div class="row" data-id="${it.id}">
+  return `<div class="row shoprow" data-id="${it.id}">
     <button class="check" data-buy="${it.id}" aria-label="סימון כנקנה: ${esc(it.name)}">${IC.check}</button>
-    <button class="body" data-popen="${it.id}"><span class="name">${esc(it.name)}${ten}</span>${parts.length?`<span class="meta">${parts.join('<span class="sep">·</span>')}</span>`:""}</button>
-    <button type="button" class="tenbtn" data-ten="${it.id}" aria-pressed="${!!it.afterTenth}" aria-label="${it.afterTenth?"להוציא מאחרי ה־10":"להעביר לאחרי ה־10"}: ${esc(it.name)}" title="${it.afterTenth?"מסומן לאחרי ה־10":"להעביר לאחרי ה־10"}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><b>10</b></button>
+    <button class="body" data-pedit="${it.id}" aria-label="עריכת ${esc(it.name)}"><span class="name">${esc(it.name)}</span>${parts.length?`<span class="meta">${parts.join('<span class="sep">·</span>')}</span>`:""}</button>
+    <button type="button" class="tentxt" data-ten="${it.id}" aria-pressed="${!!it.afterTenth}" aria-label="${it.afterTenth?"מסומן לאחרי ה־10, לחיצה מבטלת":"לסמן לקנייה אחרי ה־10"}">${it.afterTenth?"✓ אחרי ה־10":"אחרי ה־10"}</button>
+    <span class="drag" data-drag="${it.id}" aria-label="גרירה לקטגוריה אחרת" title="גרירה לקטגוריה אחרת"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>
   </div>`;
 }
 function panel(dom,k,title,inner,count,extra=""){
   return `<section class="group cat" style="${catStyle(dom,k)}">${title==null?"":`<h2><span class="dot"></span>${title}${extra}<span class="cnt">${count}</span></h2>`}<div class="list">${inner}</div></section>`;
 }
-function addRow(k){return `<form class="addrow" data-addcat="${esc(k)}"><span class="plus" aria-hidden="true">+</span><input type="text" data-addin="${esc(k)}" placeholder="הוספה ל${esc(catLabel(k))}" enterkeyhint="done" autocomplete="off" aria-label="הוספת מוצר ל${esc(catLabel(k))}"></form>`}
+function addRow(k){return `<form class="addrow" data-addcat="${esc(k)}"><span class="plus" aria-hidden="true">+</span><input type="text" data-addin="${esc(k)}" data-keep="add-${esc(k)}" placeholder="הוספה ל${esc(catLabel(k))}" enterkeyhint="done" autocomplete="off" aria-label="הוספת מוצר ל${esc(catLabel(k))}"><button type="submit" class="addok" aria-label="שמירה">${IC.check}</button></form>`}
 let collapsed=new Set();try{collapsed=new Set(JSON.parse(localStorage.getItem("house-collapsed")||"[]"))}catch(e){}
 /* shopping: section (דחוף / בית / שני) → category panels → items, each list ending in an add row */
 function shopSections(items,{showEmpty,adds,secFilter,noHead}){
@@ -894,7 +928,7 @@ function shopSections(items,{showEmpty,adds,secFilter,noHead}){
     for(const k of cats){const g=items.filter(it=>it.cat===k);if(!g.length&&!showEmpty)continue;n+=g.length;
       const inner=g.map(it=>shopRow(it,["store","note"])).join("")+(adds?addRow(k):"");
       const solo=cats.length===1&&catLabel(k)===sec.name,ck="c:"+k,closed=collapsed.has(ck);
-      body+=solo?panel("shop",k,null,inner,g.length):`<section class="group cat${closed?" closed":""}" style="${catStyle("shop",k)}"><button type="button" class="cat-h" data-collapse="${esc(ck)}" aria-expanded="${!closed}"><span class="dot"></span><span class="t">${esc(catLabel(k))}</span><span class="cnt">${g.length}</span></button><div class="list">${inner}</div></section>`}
+      body+=solo?`<section class="group cat" data-cat="${esc(k)}" style="${catStyle("shop",k)}"><div class="list">${inner}</div></section>`:`<section class="group cat${closed?" closed":""}" data-cat="${esc(k)}" style="${catStyle("shop",k)}"><button type="button" class="cat-h" data-collapse="${esc(ck)}" aria-expanded="${!closed}"><span class="dot"></span><span class="t">${esc(catLabel(k))}</span><span class="cnt">${g.length}</span></button><div class="list">${inner}</div></section>`}
     if(!body)continue;
     if(noHead){h+=body;continue}
     h+=`<section class="sect${collapsed.has(sec.id)?" closed":""}"><button type="button" class="sect-h" data-collapse="${sec.id}" aria-expanded="${!collapsed.has(sec.id)}"><b>${esc(sec.name)}</b><span class="cnt">${n}</span></button><div class="sect-b">${body}</div></section>`;
@@ -913,7 +947,7 @@ function catPanels(dom,items,rowFn){
 }
 
 /* ---------- render ---------- */
-let lastPage=null,refocus=null;
+let lastPage=null,refocus=null,editFocus=false,userNavigated=false;
 function renderTabs(){
   const pages=pageList(),n=weekTodo().length,s10=openShop().filter(s=>s.afterTenth).length;
   document.querySelectorAll("[data-area]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.area===area));
@@ -941,14 +975,20 @@ function render(soft){
   renderTabs();
   const dom=domOfPage(page);
   $("#q").placeholder=dom==="shop"?"חיפוש מוצר":"חיפוש משימה";
-  $("#add").setAttribute("aria-label",dom==="shop"?"מוצר חדש":"משימה חדשה");
+  $("#add").setAttribute("aria-label","משימה חדשה");$("#add").hidden=area==="shop";
   const main=$("#main");
   if(mode==="loading"){main.innerHTML=`<div class="empty"><b>טוען…</b></div>`;return}
-  if(page!==lastPage)picking=false;
+  if(page!==lastPage){picking=false;shopEdit=null}
+  /* keep text that is being typed (add rows, in-place edits) when the list redraws */
+  const kept={},ae=document.activeElement,focusKey=ae?.dataset?.keep,sel=focusKey?[ae.selectionStart,ae.selectionEnd]:null;
+  main.querySelectorAll("[data-keep]").forEach(el=>{kept[el.dataset.keep]=el.value});
   main.innerHTML=renderPage();
+  main.querySelectorAll("[data-keep]").forEach(el=>{if(el.dataset.keep in kept&&!el.dataset.keep.startsWith("add-"+(refocus||"\u0000")))el.value=kept[el.dataset.keep]});
+  if(focusKey&&!refocus){const el=main.querySelector(`[data-keep="${CSS.escape(focusKey)}"]`);if(el){el.focus({preventScroll:true});try{el.setSelectionRange(sel[0],sel[1])}catch(e){}}}
   if(!soft&&page!==lastPage)window.scrollTo(0,0);
   lastPage=page;
-  if(refocus){const i=$(`[data-addin="${CSS.escape(refocus)}"]`);refocus=null;if(i)i.focus({preventScroll:true})}
+  if(refocus){const i=$(`[data-addin="${CSS.escape(refocus)}"]`);refocus=null;if(i){i.value="";i.focus({preventScroll:true})}}
+  if(shopEdit&&editFocus){editFocus=false;const i=main.querySelector(`[data-keep="en-${CSS.escape(shopEdit)}"]`);if(i){i.focus({preventScroll:true});i.select()}}
   if($("#asheet").classList.contains("on"))renderArchive();
 }
 function renderPage(){
@@ -1030,7 +1070,7 @@ function renderArchive(){
   if(!items.length){$("#a-body").innerHTML=`<div class="empty"><b>הארכיון ריק</b>מוצר שמסמנים כנקנה עובר לכאן.</div>`;return}
   let cur="";
   items.forEach(it=>{if(it.bought!==cur){if(cur)h+="</div>";cur=it.bought;const ago=diff(TODAY,it.bought);h+=`<div class="dayhead">${ago===0?"היום":ago===1?"אתמול":fmt(it.bought)}</div><div class="hist">`}
-    h+=`<button class="hrow" data-aopen="${it.id}"><div>${esc(it.name)}</div><span>${esc([catLabel(it.cat),catLabel(it.cat).startsWith(storeOf(it))?"":storeOf(it)].filter(Boolean).join(" · "))}</span></button>`});
+    h+=`<div class="hrow"><div>${esc(it.name)}</div><span>${esc([catLabel(it.cat),catLabel(it.cat).startsWith(storeOf(it))?"":storeOf(it)].filter(Boolean).join(" · "))}<button type="button" class="adel" data-adel="${it.id}" aria-label="מחיקה מהארכיון">${IC.bin}</button></span></div>`});
   $("#a-body").innerHTML=h+"</div>";
 }
 
@@ -1055,11 +1095,13 @@ function markBought(id){
   showToast(`"${it.name}" נקנה ועבר לארכיון`,()=>writeDoc(id,prev));
 }
 function go(id,dir){
-  if(id===page)return;const pl=pageList();if(!dir)dir=pl.indexOf(id)>pl.indexOf(page)?"next":"prev";
+  userNavigated=true;if(id===page)return;const pl=pageList();if(!dir)dir=pl.indexOf(id)>pl.indexOf(page)?"next":"prev";
   page=id;render();const m=$("#main");m.classList.remove("slide-next","slide-prev");void m.offsetWidth;m.classList.add("slide-"+dir);
 }
 document.addEventListener("click",e=>{
   const t=e.target;
+  /* tapping anywhere outside a product being edited saves it */
+  if(shopEdit&&!t.closest(".editrow")&&!t.closest("[data-pedit]"))saveShopEdit();
   if(t.closest(".sheet,.picker")&&!t.closest("#main"))return;
   const tab=t.closest("[data-page]");if(tab){go(tab.dataset.page);return}
   const ar=t.closest("[data-area]");if(ar){switchArea(ar.dataset.area);return}
@@ -1070,7 +1112,9 @@ document.addEventListener("click",e=>{
   const tb=t.closest("[data-ten]");if(tb){const id=tb.dataset.ten,it=shop.get(id);if(!it)return;const prev=structuredClone(it);
     writeDoc(id,{...it,afterTenth:!it.afterTenth});showToast(it.afterTenth?`"${it.name}" הוסר מאחרי ה־10`:`"${it.name}" יעבור לאחרי ה־10`,()=>writeDoc(id,prev));return}
   const o=t.closest("[data-open]");if(o){openSheet(o.dataset.open);return}
-  const po=t.closest("[data-popen]");if(po){openPSheet(po.dataset.popen);return}
+  const pe=t.closest("[data-pedit]");if(pe){shopEdit=pe.dataset.pedit;editFocus=true;render(true);return}
+  const pd=t.closest("[data-pdel]");if(pd){const id=pd.dataset.pdel,prev=structuredClone(shop.get(id));shopEdit=null;removeDoc(id);showToast(`"${prev.name}" נמחק`,()=>writeDoc(id,prev));return}
+
   const pr=t.closest("[data-pick]");if(pr){const x=tasks.get(pr.dataset.pick);if(x)writeDoc(pr.dataset.pick,{...x,thisWeek:!x.thisWeek});return}
   if(t.closest("#wk-pick")){picking=true;render(true);window.scrollTo(0,0);return}
   if(t.closest("#wk-end")){picking=false;render(true);window.scrollTo(0,0);return}
@@ -1082,10 +1126,19 @@ document.addEventListener("click",e=>{
   const mg=t.closest("[data-manage]");if(mg){openManage(mg.dataset.manage);return}
 });
 $("#q").addEventListener("input",e=>{query=e.target.value;render(true)});
-$("#add").onclick=()=>area==="shop"?openPSheet(null):openSheet(null);
+$("#add").onclick=()=>openSheet(null);
+function saveShopEdit(){
+  const id=shopEdit,f=document.querySelector(`[data-editform="${CSS.escape(id||"")}"]`);shopEdit=null;
+  const it=shop.get(id);if(!it||!f){render(true);return}
+  const name=f.elements.name.value.trim().replace(/\s+/g," ")||it.name,store=f.elements.store.value.trim(),notes=f.elements.notes.value.trim();
+  if(name===it.name&&store===(it.store||"")&&notes===(it.notes||"")){render(true);return}
+  writeDoc(id,{...it,name,store,notes});showToast("נשמר ✓",false);
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&shopEdit){shopEdit=null;render(true)}});
 /* add a product straight into a list */
 function inferStore(k){const c={};for(const it of shop.values())if(it.cat===k&&storeOf(it))c[storeOf(it)]=(c[storeOf(it)]||0)+1;return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||""}
 document.addEventListener("submit",e=>{
+  if(e.target.closest("[data-editform]")){e.preventDefault();saveShopEdit();return}
   const f=e.target.closest("[data-addcat]");if(!f)return;e.preventDefault();
   const k=f.dataset.addcat,inp=f.querySelector("input"),name=inp.value.trim();if(!name)return;
   const id=newId("p");refocus=k;
@@ -1093,7 +1146,7 @@ document.addEventListener("submit",e=>{
   showToast(`"${name}" נוסף ל${catLabel(k)}`,()=>removeDoc(id));
 });
 $("#arch-btn").onclick=()=>{renderArchive();openLayer("#asheet");$("#asheet").scrollTop=0};
-$("#a-body").addEventListener("click",e=>{const b=e.target.closest("[data-aopen]");if(!b)return;closeLayers();openPSheet(b.dataset.aopen)});
+$("#a-body").addEventListener("click",e=>{const b=e.target.closest("[data-adel]");if(!b)return;const id=b.dataset.adel,prev=structuredClone(shop.get(id));removeDoc(id);renderArchive();showToast(`"${prev.name}" נמחק מהארכיון`,()=>{writeDoc(id,prev);renderArchive()})});
 
 /* swipe between pages: finger moving right = next page (the tabs run right to left) */
 {let sx=0,sy=0,st=0,ok=false;
@@ -1462,6 +1515,32 @@ function addFromPanel(){const name=$("#ord-add-in").value.trim();if(!name)return
 $("#ord-add-ok").onclick=addFromPanel;
 $("#ord-add-in").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addFromPanel()}});
 
+/* ---------- drag a product onto another category ---------- */
+{let drag=null;
+ const target=(x,y)=>{const el=document.elementFromPoint(x,y);return el?.closest?.("[data-cat]")};
+ document.addEventListener("pointerdown",e=>{
+   const h=e.target.closest("[data-drag]");if(!h)return;e.preventDefault();
+   const row=h.closest(".row"),it=shop.get(h.dataset.drag);if(!row||!it)return;
+   const r=row.getBoundingClientRect(),ghost=row.cloneNode(true);ghost.className="row shoprow drag-ghost";
+   Object.assign(ghost.style,{width:r.width+"px",left:r.left+"px",top:r.top+"px"});document.body.append(ghost);
+   row.classList.add("dragging");document.body.classList.add("is-dragging");
+   drag={id:h.dataset.drag,row,ghost,dy:e.clientY-r.top,over:null,pid:e.pointerId,y:e.clientY};
+   try{h.setPointerCapture(e.pointerId)}catch(err){}
+ });
+ const move=e=>{if(!drag||e.pointerId!==drag.pid)return;drag.y=e.clientY;drag.ghost.style.top=(e.clientY-drag.dy)+"px";
+   drag.ghost.style.visibility="hidden";const t=target(e.clientX,e.clientY);drag.ghost.style.visibility="";
+   if(t!==drag.over){drag.over?.classList.remove("drop-on");drag.over=t;t?.classList.add("drop-on")}};
+ document.addEventListener("pointermove",move);
+ /* scroll the page while the finger rests near the top or bottom */
+ setInterval(()=>{if(!drag)return;const m=70;if(drag.y<m)window.scrollBy(0,-12);else if(drag.y>innerHeight-m)window.scrollBy(0,12)},30);
+ const end=e=>{if(!drag||(e&&e.pointerId!==drag.pid))return;const{id,row,ghost,over}=drag;drag=null;
+   ghost.remove();row.classList.remove("dragging");document.body.classList.remove("is-dragging");over?.classList.remove("drop-on");
+   const it=shop.get(id),to=over?.dataset.cat;if(!it||!to||to===it.cat)return;
+   const prev=structuredClone(it),store=storeOf(it)&&storeOf(it)===inferStore(it.cat)?inferStore(to):(it.store||"");
+   writeDoc(id,{...it,cat:to,store});showToast(`"${it.name}" הועבר ל${catLabel(to)}`,()=>writeDoc(id,prev))};
+ document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end);
+}
+
 /* ---------- refresh ---------- */
 $("#refresh").onclick=async()=>{
   const b=$("#refresh");if(b.classList.contains("spin"))return;b.classList.add("spin");
@@ -1488,7 +1567,7 @@ async function startRemote(){
     if(r.status===404){if(cached)mode="loading";return false}
     if(!r.ok)throw new Error();
     mode="remote";absorb(new Map(Object.entries((await r.json()).tasks||{})));
-    pageInit=false;/* the first page comes from the server's page order, not an older saved copy */
+    if(!userNavigated)pageInit=false;/* the first page comes from the server's page order — unless she has already moved */
     try{localStorage.setItem(CACHE,JSON.stringify(allDocs()))}catch(e){}
     await pull();
   }catch(e){if(!cached)return false;mode="remote";setSync(false)}
