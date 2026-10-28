@@ -432,7 +432,12 @@ details.more summary{font-size:14px;padding:11px 0}
 .ord-hint{font-size:12.5px}
 .toast{font-size:13.5px;padding:8px 12px;border-radius:12px}
 /* ---------- in-place editing, drag, text toggle ---------- */
-.row.shoprow{grid-template-columns:auto 1fr auto auto;gap:8px}
+.row.shoprow{grid-template-columns:auto 1fr auto;gap:8px}
+.tenchip{align-self:flex-start;display:inline-flex;cursor:pointer}
+.tenchip input{position:absolute;opacity:0;pointer-events:none}
+.tenchip span{font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 11px;border:1px solid var(--line);color:var(--muted)}
+.tenchip input:checked+span{background:var(--wk-bg);color:var(--wk);border-color:transparent}
+.tenchip input:checked+span::before{content:"✓ "}
 .tentxt{border:0;background:none;color:var(--muted);opacity:.45;font-size:11.5px;font-weight:600;padding:4px 2px;white-space:nowrap}
 .tentxt[aria-pressed="true"]{color:var(--wk);opacity:1;font-weight:700}
 .drag{display:grid;place-items:center;width:22px;height:30px;color:var(--muted);opacity:.4;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
@@ -907,7 +912,7 @@ let shopEdit=null;/* id of the product being edited in place */
 function shopRow(it,meta){
   if(shopEdit===it.id)return `<form class="row editrow" data-editform="${it.id}" data-id="${it.id}">
     <span class="editfields"><input type="text" data-keep="en-${it.id}" name="name" value="${esc(it.name)}" aria-label="שם המוצר" enterkeyhint="done" autocomplete="off">
-    <span class="edit2"><input type="text" data-keep="es-${it.id}" name="store" value="${esc(it.store||"")}" placeholder="חנות" aria-label="חנות" autocomplete="off"><input type="text" data-keep="eo-${it.id}" name="notes" value="${esc(it.notes||"")}" placeholder="הערה" aria-label="הערה" autocomplete="off"></span></span>
+    <span class="edit2"><input type="text" data-keep="es-${it.id}" name="store" value="${esc(it.store||"")}" placeholder="חנות" aria-label="חנות" autocomplete="off"><input type="text" data-keep="eo-${it.id}" name="notes" value="${esc(it.notes||"")}" placeholder="הערה" aria-label="הערה" autocomplete="off"></span><label class="tenchip"><input type="checkbox" data-keep="et-${it.id}" name="ten"${it.afterTenth?" checked":""}><span>אחרי ה־10</span></label></span>
     <span class="editbtns"><button type="submit" class="eok" aria-label="שמירה">${IC.check}</button><button type="button" class="edel" data-pdel="${it.id}" aria-label="מחיקת המוצר">${IC.bin}</button></span>
   </form>`;
   const parts=[];
@@ -918,8 +923,7 @@ function shopRow(it,meta){
   }
   return `<div class="row shoprow" data-id="${it.id}">
     <button class="check" data-buy="${it.id}" aria-label="סימון כנקנה: ${esc(it.name)}">${IC.check}</button>
-    <button class="body" data-pedit="${it.id}" aria-label="עריכת ${esc(it.name)}"><span class="name">${esc(it.name)}</span>${parts.length?`<span class="meta">${parts.join('<span class="sep">·</span>')}</span>`:""}</button>
-    <button type="button" class="tentxt" data-ten="${it.id}" aria-pressed="${!!it.afterTenth}" aria-label="${it.afterTenth?"מסומן לאחרי ה־10, לחיצה מבטלת":"לסמן לקנייה אחרי ה־10"}">${it.afterTenth?"✓ אחרי ה־10":"אחרי ה־10"}</button>
+    <button class="body" data-pedit="${it.id}" aria-label="עריכת ${esc(it.name)}"><span class="name">${esc(it.name)}${it.afterTenth&&page!=="shop10"?`<span class="wk">אחרי ה־10</span>`:""}</span>${parts.length?`<span class="meta">${parts.join('<span class="sep">·</span>')}</span>`:""}</button>
     <span class="drag" data-drag="${it.id}" aria-label="גרירה לקטגוריה אחרת" title="גרירה לקטגוריה אחרת"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>
   </div>`;
 }
@@ -992,9 +996,9 @@ function render(soft){
   if(page!==lastPage){picking=false;shopEdit=null}
   /* keep text that is being typed (add rows, in-place edits) when the list redraws */
   const kept={},ae=document.activeElement,focusKey=ae?.dataset?.keep,sel=focusKey?[ae.selectionStart,ae.selectionEnd]:null;
-  main.querySelectorAll("[data-keep]").forEach(el=>{kept[el.dataset.keep]=el.value});
+  main.querySelectorAll("[data-keep]").forEach(el=>{kept[el.dataset.keep]=el.type==="checkbox"?el.checked:el.value});
   main.innerHTML=renderPage();
-  main.querySelectorAll("[data-keep]").forEach(el=>{if(el.dataset.keep in kept&&!el.dataset.keep.startsWith("add-"+(refocus||"\u0000")))el.value=kept[el.dataset.keep]});
+  main.querySelectorAll("[data-keep]").forEach(el=>{if(el.dataset.keep in kept&&!el.dataset.keep.startsWith("add-"+(refocus||"\u0000"))){if(el.type==="checkbox")el.checked=kept[el.dataset.keep];else el.value=kept[el.dataset.keep]}});
   if(focusKey&&!refocus){const el=main.querySelector(`[data-keep="${CSS.escape(focusKey)}"]`);if(el){el.focus({preventScroll:true});try{el.setSelectionRange(sel[0],sel[1])}catch(e){}}}
   if(!soft&&page!==lastPage)window.scrollTo(0,0);
   lastPage=page;
@@ -1147,9 +1151,9 @@ $("#add").onclick=()=>openSheet(null);
 function saveShopEdit(){
   const id=shopEdit,f=document.querySelector(`[data-editform="${CSS.escape(id||"")}"]`);shopEdit=null;
   const it=shop.get(id);if(!it||!f){render(true);return}
-  const name=f.elements.name.value.trim().replace(/\s+/g," ")||it.name,store=f.elements.store.value.trim(),notes=f.elements.notes.value.trim();
-  if(name===it.name&&store===(it.store||"")&&notes===(it.notes||"")){render(true);return}
-  writeDoc(id,{...it,name,store,notes});showToast("נשמר ✓",false);
+  const name=f.elements.name.value.trim().replace(/\s+/g," ")||it.name,store=f.elements.store.value.trim(),notes=f.elements.notes.value.trim(),afterTenth=f.elements.ten.checked;
+  if(name===it.name&&store===(it.store||"")&&notes===(it.notes||"")&&afterTenth===!!it.afterTenth){render(true);return}
+  writeDoc(id,{...it,name,store,notes,afterTenth});showToast("נשמר ✓",false);
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&shopEdit){shopEdit=null;render(true)}});
 /* add a product straight into a list */
