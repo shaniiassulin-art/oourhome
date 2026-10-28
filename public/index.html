@@ -890,7 +890,7 @@ function taskRow(t,meta){
     if(m==="room"&&t.room)parts.push(`<span>${esc(t.room)}</span>`);
     if(m==="int")parts.push(`<span>${intLabel(t.interval)}</span>`);
   }
-  const wk=t.thisWeek&&page!=="week"&&!isAlways(k)?`<span class="wk">השבוע</span>`:"";
+  const wk=page==="week"?"":isAlways(k)?`<span class="wk">בכל שבוע</span>`:t.thisWeek?`<span class="wk">השבוע</span>`:"";
   return `<div class="row s-${s}" data-id="${t.id}">
     <button class="check" data-done="${t.id}" aria-label="סימון כבוצעה: ${esc(t.name)}">${IC.check}</button>
     <button class="body" data-open="${t.id}"><span class="name">${esc(t.name)}${wk}</span>${parts.length?`<span class="meta">${parts.join('<span class="sep">·</span>')}</span>`:""}</button>
@@ -944,7 +944,7 @@ function shopSections(items,{showEmpty,adds,secFilter,noHead}){
 function plain(title,inner,count){return `<section class="group"><h2><span class="dot"></span>${title}<span class="cnt">${count}</span></h2><div class="list">${inner}</div></section>`}
 function catPanels(dom,items,rowFn){
   const list=catList(dom),out=[];
-  for(const k of list){const g=items.filter(x=>catKeyOf(dom,x)===k);if(g.length)out.push(panel(dom,k,esc(catLabel(k)),g.map(rowFn).join(""),g.length,dom==="tasks"&&isAlways(k)?`<span class="wk">בכל שבוע</span>`:""))}
+  for(const k of list){const g=items.filter(x=>catKeyOf(dom,x)===k);if(g.length)out.push(panel(dom,k,esc(catLabel(k)),g.map(rowFn).join(""),g.length,""))}
   const orphans=items.filter(x=>!list.includes(catKeyOf(dom,x)));
   if(orphans.length)out.push(plain("ללא קטגוריה",orphans.map(rowFn).join(""),orphans.length));
   return out.join("");
