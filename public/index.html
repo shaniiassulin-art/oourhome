@@ -437,10 +437,12 @@ details.more summary{font-size:14px;padding:11px 0}
 .row.dragging{opacity:.3}
 .drag-ghost{position:fixed;z-index:50;background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:12px;padding-inline:10px;pointer-events:none;border:0}
 body.is-dragging{user-select:none;-webkit-user-select:none}
-.group.cat.drop-on{outline:2px dashed var(--cc);outline-offset:4px;border-radius:8px}
+.drop-line{position:fixed;z-index:49;height:2px;border-radius:2px;background:var(--accent);pointer-events:none;display:none}
+.drop-line::before{content:"";position:absolute;inset-inline-start:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .editrow{grid-template-columns:1fr auto;align-items:start;padding:8px 0}
 .editfields{display:flex;flex-direction:column;gap:5px;min-width:0}
-.editfields input{width:100%;min-width:0;border:0;background:var(--sunk);color:var(--ink);border-radius:9px;padding:7px 10px;font:inherit;font-size:15px}
+.editfields input{width:100%;min-width:0;border:0;background:var(--sunk);color:var(--ink);border-radius:9px;padding:7px 10px;font:inherit;font-size:15px;font-weight:400}
+.editfields input:focus,.editfields input:focus-visible{outline:none;box-shadow:none;border:0}
 .edit2{display:flex;gap:5px}
 .edit2 input{font-size:13.5px;padding:6px 9px}
 .edit2 input:first-child{flex:0 0 38%}
@@ -961,12 +963,12 @@ function renderTabs(){
 }
 function toolIcons(dom,f){
   const n=activeCount(dom,f);
-  const sortL=dom==="shop"?({added:"סדר ההוספה",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
+  const sortL=dom==="shop"?({added:"הסדר שלי",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
   return `<div class="head-tools"><button type="button" class="btn ibtn${n?" on":""}" data-fsmode="filter" aria-label="סינון${n?`, ${n} פעילים`:""}" title="סינון">${IC.filter}${n?`<span class="dotn">${n}</span>`:""}</button><button type="button" class="btn ibtn" data-fsmode="sort" aria-label="מיון: ${esc(sortL||"")}" title="מיון: ${esc(sortL||"")}">${IC.cats}</button><button type="button" class="btn ibtn" data-manage="${dom}" aria-label="ניהול קטגוריות" title="ניהול קטגוריות">${IC.tags}</button></div>`;
 }
 function toolbar(dom,f){
   const n=activeCount(dom,f);
-  const sortL=dom==="shop"?({added:"סדר ההוספה",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
+  const sortL=dom==="shop"?({added:"הסדר שלי",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות ואז איחור",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
   return `<div class="toolbar"><div style="display:flex;gap:6px"><button type="button" class="btn ibtn${n?" on":""}" data-fsmode="filter" aria-label="סינון${n?`, ${n} פעילים`:""}" title="סינון">${IC.filter}${n?`<span class="dotn">${n}</span>`:""}</button><button type="button" class="btn ibtn" data-fsmode="sort" aria-label="מיון: ${esc(sortL||"")}" title="מיון: ${esc(sortL||"")}">${IC.cats}</button></div><button type="button" class="btn ghost" data-manage="${dom}">ניהול קטגוריות</button></div>${activeChips(dom,f)}`;
 }
 function render(soft){
@@ -992,7 +994,7 @@ function render(soft){
   if(!soft&&page!==lastPage)window.scrollTo(0,0);
   lastPage=page;
   if(refocus){const i=$(`[data-addin="${CSS.escape(refocus)}"]`);refocus=null;if(i){i.value="";i.focus({preventScroll:true})}}
-  if(shopEdit&&editFocus){editFocus=false;const i=main.querySelector(`[data-keep="en-${CSS.escape(shopEdit)}"]`);if(i){i.focus({preventScroll:true});i.select()}}
+  if(shopEdit&&editFocus){editFocus=false;const i=main.querySelector(`[data-keep="en-${CSS.escape(shopEdit)}"]`);if(i){i.focus({preventScroll:true});const n=i.value.length;try{i.setSelectionRange(n,n)}catch(e){}}}
   if($("#asheet").classList.contains("on"))renderArchive();
 }
 function renderPage(){
@@ -1047,10 +1049,12 @@ function renderHistory(){
   recent.forEach(e=>{if(e.d!==cur){if(cur)h+="</div>";cur=e.d;const ago=diff(TODAY,e.d);h+=`<div class="dayhead">${ago===0?"היום":ago===1?"אתמול":fmt(e.d)}</div><div class="hist">`}h+=`<div class="hrow"><div>${esc(e.name)}</div></div>`});
   return h+"</div>";
 }
+const byOrder=(a,b)=>(a.order??1e12)-(b.order??1e12)||(a.created||"").localeCompare(b.created||"");
+function writeMany(list){for(const[id,d]of list)(d.kind==="shop"?shop:tasks).set(id,d);render(true);for(const[id,d]of list)persist(id,d)}
 function renderShopList(f){
   const v=viewOf(page),open=openShop();
   const items=open.filter(it=>shopMatch(it,f));
-  items.sort(f.sort==="new"?(a,b)=>(b.created||"").localeCompare(a.created||""):f.sort==="name"?(a,b)=>a.name.localeCompare(b.name,"he"):(a,b)=>(a.created||"").localeCompare(b.created||""));
+  items.sort(f.sort==="new"?(a,b)=>(b.created||"").localeCompare(a.created||""):f.sort==="name"?(a,b)=>a.name.localeCompare(b.name,"he"):byOrder);
   const sp=secPageId();
   const h=`<div class="page-head"><div><b>${esc(v?v.name:sp?secName(sp):"רשימת הקניות")}</b><span>${v||sp?`${items.length} מוצרים`:open.length?`${open.length} מוצרים ברשימה`:"הרשימה ריקה"}</span></div>${toolIcons("shop",f)}</div>`+activeChips("shop",f);
   const plainView=!activeCount("shop",f)&&!query.trim();
@@ -1061,7 +1065,7 @@ function renderShopList(f){
   return h+`<section class="group"><div class="list">${items.map(it=>shopRow(it,["cat","store","note"])).join("")}</div></section>`;
 }
 function renderShop10(){
-  const d=parse(TODAY).getDate(),items=openShop().filter(it=>it.afterTenth&&qmatch(it)).sort((a,b)=>(a.created||"").localeCompare(b.created||""));
+  const d=parse(TODAY).getDate(),items=openShop().filter(it=>it.afterTenth&&qmatch(it)).sort(byOrder);
   const sub=d>=10?"הגיע ה־10 בחודש, אפשר לקנות":`עוד ${10-d} ${10-d===1?"יום":"ימים"} עד ה־10 בחודש`;
   const h=`<div class="page-head"><div><b>אחרי ה־10 בחודש</b><span>${items.length?`${items.length} מוצרים · ${sub}`:sub}</span></div></div>`;
   if(!items.length)return h+`<div class="empty"><b>אין מוצרים לאחרי ה־10</b>במוצר בקניות אפשר לסמן "לקנות אחרי ה־10", והוא יופיע כאן עד שייקנה.</div>`;
@@ -1339,7 +1343,7 @@ function renderFilter(){
       h+=`<div class="fgroup"><span class="lab">סדר</span><div class="opts">${optBtns("sort",[["default","תדירות ואז איחור"],["late","האיחור הגדול קודם"],["name","לפי שם"]],f.sort)}</div></div>`;
     }else{
       h+=`<div class="fgroup"><span class="lab">חלוקה</span><div class="opts">${optBtns("group",[["cat","קטגוריות ראשיות וקטגוריות"],["store","לפי חנויות"],["none","בלי חלוקה"]],f.group)}</div></div>`;
-      h+=`<div class="fgroup"><span class="lab">סדר</span><div class="opts">${optBtns("sort",[["added","לפי סדר ההוספה"],["new","החדשים קודם"],["name","לפי שם"]],f.sort)}</div></div>`;
+      h+=`<div class="fgroup"><span class="lab">סדר</span><div class="opts">${optBtns("sort",[["added","הסדר שלי"],["new","החדשים קודם"],["name","לפי שם"]],f.sort)}</div></div>`;
     }
   }else if(dom==="tasks"){
     const all=allTasks(),cnt=(skip,fn)=>all.filter(t=>taskMatch(t,f,skip)&&fn(t)).length;
@@ -1521,8 +1525,8 @@ function addFromPanel(){const name=$("#ord-add-in").value.trim();if(!name)return
 $("#ord-add-ok").onclick=addFromPanel;
 $("#ord-add-in").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addFromPanel()}});
 
-/* ---------- drag a product onto another category ---------- */
-{let drag=null;
+/* ---------- drag a product: reorder within a category or move to another ---------- */
+{let drag=null;const line=document.createElement("div");line.className="drop-line";document.body.append(line);
  const target=(x,y)=>{const el=document.elementFromPoint(x,y);return el?.closest?.("[data-cat]")};
  document.addEventListener("pointerdown",e=>{
    const h=e.target.closest("[data-drag]");if(!h)return;e.preventDefault();
@@ -1530,20 +1534,37 @@ $("#ord-add-in").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDef
    const r=row.getBoundingClientRect(),ghost=row.cloneNode(true);ghost.className="row shoprow drag-ghost";
    Object.assign(ghost.style,{width:r.width+"px",left:r.left+"px",top:r.top+"px"});document.body.append(ghost);
    row.classList.add("dragging");document.body.classList.add("is-dragging");
-   drag={id:h.dataset.drag,row,ghost,dy:e.clientY-r.top,over:null,pid:e.pointerId,y:e.clientY};
+   drag={id:h.dataset.drag,row,ghost,dy:e.clientY-r.top,over:null,before:null,pid:e.pointerId,x:e.clientX,y:e.clientY};
    try{h.setPointerCapture(e.pointerId)}catch(err){}
  });
- const move=e=>{if(!drag||e.pointerId!==drag.pid)return;drag.y=e.clientY;drag.ghost.style.top=(e.clientY-drag.dy)+"px";
-   drag.ghost.style.visibility="hidden";const t=target(e.clientX,e.clientY);drag.ghost.style.visibility="";
-   if(t!==drag.over){drag.over?.classList.remove("drop-on");drag.over=t;t?.classList.add("drop-on")}};
+ const place=()=>{if(!drag)return;
+   drag.ghost.style.visibility="hidden";const t=target(drag.x,drag.y);drag.ghost.style.visibility="";
+   drag.over=t;drag.before=null;if(!t){line.style.display="none";return}
+   const rows=[...t.querySelectorAll(".row.shoprow[data-id]")].filter(r=>r.dataset.id!==drag.id);
+   let y=null,ref=null;
+   for(const r of rows){const b=r.getBoundingClientRect();if(drag.y<b.top+b.height/2){drag.before=r.dataset.id;y=b.top;ref=b;break}}
+   if(!ref&&rows.length){ref=rows[rows.length-1].getBoundingClientRect();y=ref.bottom}
+   if(!ref){const b=t.getBoundingClientRect();ref=b;y=b.top+b.height/2}
+   Object.assign(line.style,{display:"block",top:(y-1)+"px",left:ref.left+"px",width:ref.width+"px"})};
+ const move=e=>{if(!drag||e.pointerId!==drag.pid)return;drag.x=e.clientX;drag.y=e.clientY;drag.ghost.style.top=(e.clientY-drag.dy)+"px";place()};
  document.addEventListener("pointermove",move);
  /* scroll the page while the finger rests near the top or bottom */
- setInterval(()=>{if(!drag)return;const m=70;if(drag.y<m)window.scrollBy(0,-12);else if(drag.y>innerHeight-m)window.scrollBy(0,12)},30);
- const end=e=>{if(!drag||(e&&e.pointerId!==drag.pid))return;const{id,row,ghost,over}=drag;drag=null;
-   ghost.remove();row.classList.remove("dragging");document.body.classList.remove("is-dragging");over?.classList.remove("drop-on");
-   const it=shop.get(id),to=over?.dataset.cat;if(!it||!to||to===it.cat)return;
-   const prev=structuredClone(it),store=storeOf(it)&&storeOf(it)===inferStore(it.cat)?inferStore(to):(it.store||"");
-   writeDoc(id,{...it,cat:to,store});showToast(`"${it.name}" הועבר ל${catLabel(to)}`,()=>writeDoc(id,prev))};
+ setInterval(()=>{if(!drag)return;const m=70;if(drag.y<m){window.scrollBy(0,-12);place()}else if(drag.y>innerHeight-m){window.scrollBy(0,12);place()}},30);
+ const end=e=>{if(!drag||(e&&e.pointerId!==drag.pid))return;const{id,row,ghost,over,before}=drag;drag=null;
+   ghost.remove();line.style.display="none";row.classList.remove("dragging");document.body.classList.remove("is-dragging");
+   const it=shop.get(id),to=over?.dataset.cat;if(!it||!to)return;
+   const moved=to!==it.cat;
+   const store=moved?(storeOf(it)&&storeOf(it)===inferStore(it.cat)?inferStore(to):(it.store||"")):it.store;
+   /* full order of the target category, then put the product in its new place */
+   const list=[...shop.entries()].map(([k,v])=>({id:k,...v})).filter(x=>!x.bought&&x.cat===to&&x.id!==id).sort(byOrder).map(x=>x.id);
+   const at=before&&list.includes(before)?list.indexOf(before):list.length;
+   list.splice(at,0,id);
+   const changes=[],prevs=[];
+   list.forEach((k,i)=>{const cur=shop.get(k),o=(i+1)*10;let n=k===id?{...cur,cat:to,store,order:o}:{...cur,order:o};
+     if(JSON.stringify(n)!==JSON.stringify(cur)){changes.push([k,n]);prevs.push([k,structuredClone(cur)])}});
+   if(!changes.length)return;
+   writeMany(changes);
+   if(moved)showToast(`"${it.name}" הועבר ל${catLabel(to)}`,()=>writeMany(prevs))};
  document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end);
 }
 
