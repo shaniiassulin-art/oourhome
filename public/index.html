@@ -231,6 +231,9 @@ button.hrow{width:100%;background:none;border-width:0 0 1px;border-style:solid;b
 .quick .btn{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:58px;padding:8px 10px;line-height:1.2}
 .quick .btn small{font-size:12.5px;font-weight:600;opacity:.8}
 .quick .btn:disabled{cursor:default}
+#sh-week{grid-column:1/-1}
+#sh-fri[hidden]~#sh-week{grid-column:auto}
+#sh-fri.btn{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft)}
 .btn{border:1px solid var(--line);background:transparent;border-radius:12px;padding:11px 10px;font-weight:700;font-size:15px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.wk-on{background:var(--wk-bg);border-color:var(--wk);color:var(--wk)}
@@ -525,6 +528,7 @@ body.is-dragging{user-select:none;-webkit-user-select:none}
     <div class="sub" id="sh-sub"></div>
     <div class="quick" id="sh-quick">
       <button class="btn primary" id="sh-done"></button>
+      <button class="btn primary" id="sh-fri"></button>
       <button class="btn" id="sh-week"></button>
     </div>
     <div class="field" id="fw-name"><label for="f-name">שם המשימה</label><input id="f-name" type="text" placeholder="למשל: ניקוי מקרר" autocomplete="off"></div>
@@ -1107,7 +1111,7 @@ document.addEventListener("click",e=>{
   const ar=t.closest("[data-area]");if(ar){switchArea(ar.dataset.area);return}
   const cl=t.closest("[data-collapse]");if(cl){const id=cl.dataset.collapse;collapsed.has(id)?collapsed.delete(id):collapsed.add(id);try{localStorage.setItem("house-collapsed",JSON.stringify([...collapsed]))}catch(e){}render(true);return}
   const fm=t.closest("[data-fsmode]");if(fm){openFilter(fm.dataset.fsmode);return}
-  const d=t.closest("[data-done]");if(d){markDone(d.dataset.done,lastFriday());return}
+  const d=t.closest("[data-done]");if(d){markDone(d.dataset.done,TODAY);return}
   const b=t.closest("[data-buy]");if(b){markBought(b.dataset.buy);return}
   const tb=t.closest("[data-ten]");if(tb){const id=tb.dataset.ten,it=shop.get(id);if(!it)return;const prev=structuredClone(it);
     writeDoc(id,{...it,afterTenth:!it.afterTenth});showToast(it.afterTenth?`"${it.name}" הוסר מאחרי ה־10`:`"${it.name}" יעבור לאחרי ה־10`,()=>writeDoc(id,prev));return}
@@ -1189,7 +1193,7 @@ $("#f-name").addEventListener("input",()=>{
 $("#f-room").addEventListener("change",()=>{clearErr("room");autosave()});
 $("#f-notes").addEventListener("input",autosave);
 function setDateBtn(el,v,emptyText){el.dataset.value=v||"";el.textContent=v?fmt(v):emptyText;el.classList.toggle("empty",!v)}
-$("#f-last").onclick=()=>openPicker({value:$("#f-last").dataset.value,maxToday:true,onPick:v=>{setDateBtn($("#f-last"),v,"לא הוגדר");if(whenSel==="friday"&&v!==lastFriday()){whenSel=null;renderWhen()}updateDates();autosave()}});
+$("#f-last").onclick=()=>openPicker({value:$("#f-last").dataset.value,maxToday:true,onPick:v=>{setDateBtn($("#f-last"),v,"לא הוגדר");if((whenSel==="friday"&&v!==lastFriday())||(whenSel==="today"&&v!==TODAY)){whenSel=null;renderWhen()}updateDates();autosave()}});
 $("#f-next").onclick=()=>openPicker({value:$("#f-next").dataset.value||nextOf({...draft(),manualNext:null})||"",clearLabel:"לפי התדירות",onPick:v=>{$("#f-next").dataset.value=v||"";updateDates();autosave()}});
 function draft(){return{name:$("#f-name").value.trim(),room:$("#f-room").value,priority:editType,interval:editInt,last:$("#f-last").dataset.value||null,manualNext:$("#f-next").dataset.value||null,notes:$("#f-notes").value.trim()}}
 function updateDates(){
@@ -1199,11 +1203,12 @@ function updateDates(){
 }
 function renderWhen(){
   const f=lastFriday();
-  $("#f-when").innerHTML=`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">${f===TODAY?"בוצעה היום":`בוצעה בשישי האחרון (${fmtShort(f)})`}</button><button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף למשימות השבוע</button>`;
+  $("#f-when").innerHTML=`<button type="button" data-when="today" aria-pressed="${whenSel==="today"}">בוצעה היום</button>${f===TODAY?"":`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">בוצעה בשישי האחרון (${fmtShort(f)})</button>`}<button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף למשימות השבוע</button>`;
 }
 $("#f-when").addEventListener("click",e=>{const b=e.target.closest("[data-when]");if(!b)return;const was=whenSel;whenSel=whenSel===b.dataset.when?null:b.dataset.when;
-  if(whenSel==="friday")setDateBtn($("#f-last"),lastFriday(),"לא הוגדר");
-  else if(was==="friday"&&$("#f-last").dataset.value===lastFriday())setDateBtn($("#f-last"),null,"לא הוגדר");
+  const wd=w=>w==="today"?TODAY:w==="friday"?lastFriday():null;
+  if(wd(whenSel))setDateBtn($("#f-last"),wd(whenSel),"לא הוגדר");
+  else if(wd(was)&&$("#f-last").dataset.value===wd(was))setDateBtn($("#f-last"),null,"לא הוגדר");
   renderWhen();updateDates()});
 function clearErr(k){$("#fw-"+k)?.classList.remove("err")}
 function autosave(){if(!editId)return;clearTimeout(asTimer);asTimer=setTimeout(saveEdit,450)}
@@ -1217,7 +1222,7 @@ function saveEdit(){
   writeDoc(editId,next);renderWeekBtn(next);$("#sh-title").textContent=d.name;
   const sub=$("#sh-sub");sub.textContent="נשמר ✓";sub.classList.add("saved");
 }
-function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצעה</span><small>${f===TODAY?"היום":`בשישי האחרון · ${fmtShort(f)}`}</small>`}
+function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצעה היום</span><small>${fmtShort(TODAY)}</small>`;$("#sh-fri").hidden=f===TODAY;$("#sh-fri").innerHTML=`<span>✓ בוצעה בשישי</span><small>${fmtShort(f)}</small>`}
 function renderWeekBtn(t){const b=$("#sh-week"),fixed=t&&isAlways(catKeyOf("tasks",t));b.disabled=!!fixed;
   b.innerHTML=fixed?`<span>משימות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ נבחרה לשבוע</span>`:`<span>+ הוספה לשבוע</span><small>למשימות השבוע</small>`;
   b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
@@ -1251,7 +1256,8 @@ $("#sh-save").onclick=()=>{
   writeDoc(id,{...d,history:d.last?[d.last]:[],thisWeek:whenSel==="week",created:TODAY});closeLayers();
   showToast(`"${d.name}" נוספה`,()=>removeDoc(id));
 };
-$("#sh-done").onclick=()=>{saveEdit();const id=editId;editId=null;closeLayers();markDone(id,lastFriday())};
+$("#sh-done").onclick=()=>{saveEdit();const id=editId;editId=null;closeLayers();markDone(id,TODAY)};
+$("#sh-fri").onclick=()=>{saveEdit();const id=editId;editId=null;closeLayers();markDone(id,lastFriday())};
 $("#sh-week").onclick=()=>{saveEdit();const t=tasks.get(editId);if(!t)return;const n={...t,thisWeek:!t.thisWeek};writeDoc(editId,n);renderWeekBtn(n)};
 $("#sh-del").onclick=()=>{
   if(!delArmed){delArmed=true;$("#sh-del").classList.add("arm");$("#sh-del").textContent="בטוח? לחצי שוב למחיקה";return}
