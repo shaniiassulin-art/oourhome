@@ -823,7 +823,7 @@ function guessCat(dom,name){
 
 /* ---------- pages ---------- */
 /* two areas, each with its own pages: house tasks and shopping */
-const PAGES={week:"משימות השבוע",cats:"כל המשימות",history:"משימות שבוצעו",shop:"רשימת הקניות",shop10:"אחרי ה־10 בחודש"};
+const PAGES={week:"משימות לשבוע",cats:"כל המשימות",history:"משימות שבוצעו",shop:"רשימת הקניות",shop10:"אחרי ה־10 בחודש"};
 const PAGE_AREA={week:"tasks",cats:"tasks",history:"tasks",shop:"shop",shop10:"shop"};
 const views=()=>settings.views||[];
 let area="tasks";const areaPage={tasks:null,shop:null};
@@ -1041,7 +1041,7 @@ function renderWeek(){
   const fixed=all.filter(t=>isAlways(catKeyOf("tasks",t))),fixedTodo=fixed.filter(t=>!doneThisWeek(t));
   const picked=all.filter(t=>t.thisWeek&&!isAlways(catKeyOf("tasks",t)));
   const list=[...fixed,...picked].sort(defaultSort),left=fixedTodo.length+picked.length,allDone=!left&&fixed.length>0;
-  let h=`<div class="page-head"><div><b>משימות השבוע</b><span>${left?`נשארו ${left} משימות`:allDone?"כל המשימות הושלמו":"אין משימות לשבוע הזה"}</span></div></div>`;
+  let h=`<div class="page-head"><div><b>משימות לשבוע</b><span>${left?`נשארו ${left} משימות`:allDone?"כל המשימות הושלמו":"אין משימות לשבוע הזה"}</span></div></div>`;
   if(!list.length)return h+`<div class="empty"><b>אין משימות לשבוע הזה</b>בחלון של כל משימה אפשר ללחוץ "הוספה לשבוע".</div>`;
   if(allDone)h+=`<div class="alldone"><b>כל המשימות של השבוע הושלמו 🎉</b><span>ההודעה תיעלם ביום שישי, כשיגיע הזמן לעשות אותן שוב.</span></div>`;
   h+=catPanels("tasks",list,t=>taskRow(t,["int"]));
@@ -1220,7 +1220,7 @@ function updateDates(){
 }
 function renderWhen(){
   const f=lastFriday();
-  $("#f-when").innerHTML=`<button type="button" data-when="today" aria-pressed="${whenSel==="today"}">בוצע היום</button>${f===TODAY?"":`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">בוצע בשישי האחרון (${fmtShort(f)})</button>`}<button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף למשימות השבוע</button>`;
+  $("#f-when").innerHTML=`<button type="button" data-when="today" aria-pressed="${whenSel==="today"}">בוצע היום</button>${f===TODAY?"":`<button type="button" data-when="friday" aria-pressed="${whenSel==="friday"}">בוצע בשישי האחרון (${fmtShort(f)})</button>`}<button type="button" data-when="week" aria-pressed="${whenSel==="week"}">להוסיף למשימות לשבוע</button>`;
 }
 $("#f-when").addEventListener("click",e=>{const b=e.target.closest("[data-when]");if(!b)return;const was=whenSel;whenSel=whenSel===b.dataset.when?null:b.dataset.when;
   const wd=w=>w==="today"?TODAY:w==="friday"?lastFriday():null;
@@ -1241,7 +1241,7 @@ function saveEdit(){
 }
 function renderDoneBtn(){const f=lastFriday();$("#sh-done").innerHTML=`<span>✓ בוצע היום</span>`;$("#sh-fri").hidden=f===TODAY;$("#sh-fri").innerHTML=`<span>✓ בוצע בשישי</span><small>${fmtShort(f)}</small>`}
 function renderWeekBtn(t){const b=$("#sh-week"),fixed=t&&isAlways(catKeyOf("tasks",t));b.disabled=!!fixed;
-  b.innerHTML=fixed?`<span>משימות השבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ נבחרה לשבוע</span>`:`<span>+ הוספה לשבוע</span><small>למשימות השבוע</small>`;
+  b.innerHTML=fixed?`<span>משימות לשבוע</span><small>מופיעה בכל שבוע</small>`:t?.thisWeek?`<span>✓ נבחרה לשבוע</span>`:`<span>+ הוספה לשבוע</span><small>למשימות לשבוע</small>`;
   b.className="btn"+(t?.thisWeek||fixed?" wk-on":"")}
 function openSheet(id){
   editId=id;delArmed=false;whenSel=null;typeTouched=!!id;$("#sh-del").classList.remove("arm");$("#sh-del").textContent="מחיקת המשימה";
@@ -1458,7 +1458,7 @@ function renderManage(){
     const items=dom==="shop"?[...shop.values()].filter(s=>!s.bought):[...tasks.values()];
     $("#ord-add-sec").hidden=dom!=="shop";$("#ord-add-sec").innerHTML=sections().map(x=>`<option value="${x.id}"${x.id==="home"?" selected":""}>${esc(x.name)}</option>`).join("");
     const rowFor=(k,first,last)=>{const st=catStyle(dom,k),n=items.filter(x=>catKeyOf(dom,x)===k).length;
-      if(k===mEdit)return `<li style="${st}" class="editing"><input type="text" id="ord-in" maxlength="30" value="${esc(catLabel(k))}" aria-label="שם הקטגוריה"><button type="button" class="txtb" data-save="${esc(k)}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button>${dom==="tasks"?`<label class="chk"><input type="checkbox" id="ord-always"${isAlways(k)?" checked":""}>להציג תמיד במשימות השבוע</label>`:`<label class="chk">שייכת ל: <select id="ord-sec" aria-label="שייכת ל">${sections().map(x=>`<option value="${x.id}"${sectionOf(k)===x.id?" selected":""}>${esc(x.name)}</option>`).join("")}</select></label>`}</li>`;
+      if(k===mEdit)return `<li style="${st}" class="editing"><input type="text" id="ord-in" maxlength="30" value="${esc(catLabel(k))}" aria-label="שם הקטגוריה"><button type="button" class="txtb" data-save="${esc(k)}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button>${dom==="tasks"?`<label class="chk"><input type="checkbox" id="ord-always"${isAlways(k)?" checked":""}>להציג תמיד במשימות לשבוע</label>`:`<label class="chk">שייכת ל: <select id="ord-sec" aria-label="שייכת ל">${sections().map(x=>`<option value="${x.id}"${sectionOf(k)===x.id?" selected":""}>${esc(x.name)}</option>`).join("")}</select></label>`}</li>`;
       if(k===mDel){const others=list.filter(x=>x!==k);
         if(!others.length)return `<li style="${st}"><span class="txt">אי אפשר למחוק את הקטגוריה האחרונה.</span><button type="button" class="txtb plain" data-cancel="1">סגירה</button></li>`;
         return `<li style="${st}">${n?`<span class="txt">ב"${esc(catLabel(k))}" יש ${n} ${noun}. לאן להעביר אותם?</span><select id="ord-move" aria-label="קטגוריה להעברה">${others.map(o=>`<option value="${esc(o)}">${esc(catLabel(o))}</option>`).join("")}</select>`:`<span class="nm">למחוק את "${esc(catLabel(k))}"?</span>`}<button type="button" class="txtb danger" data-delok="${esc(k)}">מחיקה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button></li>`}
