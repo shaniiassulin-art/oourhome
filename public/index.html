@@ -182,7 +182,9 @@ main.slide-prev{animation:slideP .22s ease}
 
 .row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
 .check{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);opacity:.7;background:transparent;display:grid;place-items:center;color:transparent;transition:background .15s}
-.check:hover{color:var(--cc,var(--accent))}
+@media (hover:hover){.check:hover{color:var(--cc,var(--accent))}}
+.check{padding:0}
+.check.tick{background:var(--cc,var(--accent));border-color:var(--cc,var(--accent));color:#fff;opacity:1}
 .body{min-width:0;border:0;background:none;text-align:right;padding:0}
 .name{display:block;font-weight:600;font-size:16.5px;overflow-wrap:anywhere}
 .meta{font-size:13px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;margin-top:1px}
@@ -465,7 +467,12 @@ body.is-dragging{user-select:none;-webkit-user-select:none}
 .editbtns svg{width:15px;height:15px}
 .addok{flex:none;width:30px;height:30px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
 .addok svg{width:13px;height:13px}
-.addrow input:placeholder-shown~.addok{visibility:hidden}
+.addrow input[data-addin]:placeholder-shown~.addok{visibility:hidden}
+.addrow{flex-wrap:wrap}
+.addrow input[data-addin]:placeholder-shown~.addsel{display:none}
+.addsel{flex:0 1 36%;min-width:0;border:0;background:var(--sunk);color:var(--ink);border-radius:8px;padding:5px 6px;font:inherit;font-size:13px}
+.addrow .newcat{flex:1 0 100%;margin-inline-start:34px;border:0;background:var(--sunk);border-radius:8px;padding:7px 10px;font:inherit;font-size:15px;color:var(--ink)}
+.addrow .newcat:focus{outline:none}
 .adel{border:0;background:none;color:var(--muted);padding:2px 4px;margin-inline-start:8px;vertical-align:middle;opacity:.6}
 .adel svg{width:14px;height:14px}
 /* undo message: bottom centre, clear of the + button */
@@ -502,6 +509,54 @@ body.is-dragging{user-select:none;-webkit-user-select:none}
 .tenbtn{border-color:transparent;opacity:.5}
 .tenbtn[aria-pressed="true"]{border-color:var(--wk)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ---------- larger, calmer type ---------- */
+body{font-size:16px}
+h1{font-size:24px}
+.date{font-size:13.5px}
+.area button{font-size:15.5px;font-weight:700}
+.tabs button.tab{font-size:14.5px}
+.page-head b{font-size:20px}
+.page-head span{font-size:13.5px}
+.sect-h b{font-size:21px}
+.sect-h .cnt{font-size:14px}
+.group.cat h2,.cat-h{font-size:15.5px;font-weight:800}
+.group h2,.group.cat h2{font-size:15.5px;font-weight:800}
+.name{font-size:16.5px;font-weight:500}
+.meta{font-size:13.5px}
+.pill{font-size:14px}
+.wk{font-size:11.5px;padding:1px 7px}
+.editfields input,.edit2 input,.editfields select{font-size:16px}
+.editfields select{width:100%;min-width:0;border:0;background:var(--sunk);color:var(--ink);border-radius:9px;padding:6px 8px;font:inherit;font-size:15px}
+.editfields .newcat{flex:1}
+.edit2 select{flex:1 1 50%;width:auto}
+.addrow input[data-addin]{flex:1;min-width:0}
+.editfields input:focus,.editfields select:focus{outline:none}
+.addrow input[data-addin]{font-size:16px}
+.toast{font-size:14.5px}
+/* no bullets in headings */
+.group h2 .dot,.cat-h .dot,.meta .cd{display:none}
+/* tags in edit */
+.tagchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tagchips .newtag{flex:0 1 110px;min-width:80px;border:0;background:none;border-bottom:1px dashed var(--line);border-radius:0;padding:3px 4px;font-size:13.5px}
+.tenchip input{width:auto}
+.selmove{appearance:none;-webkit-appearance:none;text-align:center;max-width:52%}
+/* back to top */
+.totop{position:fixed;z-index:6;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.12);padding:0}
+.totop[hidden]{display:none}
+body:has(.selbar) .totop{display:none}
+/* done tasks */
+.hday{margin-top:20px}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;margin:0;padding-bottom:6px;border-bottom:1.5px solid var(--ink);color:var(--ink)}
+.dayhead b{font-family:var(--f-display);font-weight:400;font-size:18px}
+.dayhead span{color:var(--muted);font-size:13.5px;font-weight:600}
+.hist{border-top:0}
+.hrow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:10px 0;font-size:16px;border-bottom:1px solid var(--line)}
+.hdone{width:22px;height:22px;border-radius:50%;background:var(--cc,var(--accent));color:#fff;display:grid;place-items:center}
+.hdone svg{width:12px;height:12px}
+.hrow .hn{min-width:0;overflow-wrap:anywhere;color:var(--ink)!important;opacity:1}
+.hdone svg path{stroke:#fff}
+body:has(.selbar) .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+.hrow .hc{font-size:13px;color:var(--cc);font-weight:700;white-space:nowrap}
 </style>
 
 <div class="wrap">
@@ -531,6 +586,7 @@ body.is-dragging{user-select:none;-webkit-user-select:none}
   <main id="main"></main>
 </div>
 
+<button class="totop" id="totop" type="button" aria-label="חזרה למעלה" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>
 <button class="fab" id="add" aria-label="הוספה"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 
 <!-- task window -->
@@ -849,15 +905,15 @@ let page=null,pageInit=false,picking=false,query="",clearArmed=false;
 
 /* ---------- filters ---------- */
 const TF0={status:null,interval:null,room:null,cat:null,sort:"default",group:"cat"};
-const SF0={sec:null,cat:null,store:null,ten:null,sort:"added",group:"cat"};
+const SF0={sec:null,cat:null,store:null,ten:null,tag:null,sort:"added",group:"cat"};
 let localF={tasks:{...TF0},shop:{...SF0}};
 try{const s2=JSON.parse(localStorage.getItem("house-filters2")||"null"),s1=JSON.parse(localStorage.getItem("house-filters")||"null");
   /* the earlier version stored shopping sort "name"; start shopping fresh with the new default order */
   if(s2)localF={tasks:{...TF0,...s2.tasks},shop:{...SF0,...s2.shop}};else if(s1)localF={tasks:{...TF0,...s1.tasks},shop:{...SF0}}}catch(e){}
 function saveLocalF(){try{localStorage.setItem("house-filters2",JSON.stringify(localF))}catch(e){}}
 function currentF(){const v=viewOf(page);if(v)return{dom:v.dom,f:{...(v.dom==="shop"?SF0:TF0),...v.f}};
-  const sp=secPageId();if(sp)return{dom:"shop",f:{...SF0,sec:sp}};
-  const dom=domOfPage(page);return{dom,f:dom==="shop"?{...SF0}:localF[dom]}}
+  const sp=secPageId();if(sp)return{dom:"shop",f:{...SF0,...(localF[page]||{}),sec:sp}};
+  const dom=domOfPage(page);return{dom,f:localF[dom]}}
 function setF(dom,f){const v=viewOf(page);if(v)writeSettings({...settings,views:views().map(x=>x.id===v.id?{...x,f}:x)});
   else if(secPageId()){localF[page]={...f,sec:null};saveLocalF();render(true)}
   else{localF[dom]=f;saveLocalF();render(true)}}
@@ -872,17 +928,19 @@ function taskMatch(t,f,skip){
   return true;
 }
 const storeOf=it=>(it.store||"").trim();
+const allTags=()=>[...new Set([...shop.values()].flatMap(it=>it.tags||[]))].sort((a,b)=>a.localeCompare(b,"he"));
 function shopMatch(it,f,skip){
   if(!qmatch(it))return false;
   if(skip!=="sec"&&f.sec&&sectionOf(it.cat)!==f.sec)return false;
   if(skip!=="cat"&&f.cat&&it.cat!==f.cat)return false;
   if(skip!=="store"&&f.store!=null&&storeOf(it)!==f.store)return false;
   if(skip!=="ten"&&f.ten!=null&&!!it.afterTenth!==f.ten)return false;
+  if(skip!=="tag"&&f.tag&&!(it.tags||[]).includes(f.tag))return false;
   return true;
 }
 const allTasks=()=>[...tasks.entries()].map(([id,t])=>({id,...t,rem:remOf(t)}));
 const openShop=()=>[...shop.entries()].map(([id,s])=>({id,...s})).filter(s=>!s.bought);
-function activeCount(dom,f){return(dom==="shop"?[secPageId()?"":"sec","cat","store","ten"]:["status","interval","room","cat"]).filter(k=>f[k]!=null).length}
+function activeCount(dom,f){return(dom==="shop"?[secPageId()?"":"sec","cat","store","ten","tag"]:["status","interval","room","cat"]).filter(k=>f[k]!=null).length}
 function activeChips(dom,f){
   const out=[];
   if(dom==="tasks"){
@@ -895,12 +953,14 @@ function activeChips(dom,f){
     if(f.cat)out.push(["cat",catLabel(f.cat)]);
     if(f.store!=null)out.push(["store",f.store||"בלי חנות"]);
     if(f.ten!=null)out.push(["ten",f.ten?"אחרי ה־10":"לא אחרי ה־10"]);
+    if(f.tag)out.push(["tag",f.tag]);
   }
   return out.length?`<div class="active-f">${out.map(([k,l])=>`<button type="button" data-unf="${k}" aria-label="ביטול הסינון ${esc(l)}">${esc(l)}</button>`).join("")}</div>`:"";
 }
 
 /* ---------- rows ---------- */
 function selBar(){if(!selSet)return"";const n=selSet.size;
+  if(area==="shop")return `<div class="selbar" role="region" aria-label="פעולות על הבחירה"><span class="seln">${n?`נבחרו ${n}`:"לא נבחרו מוצרים"}</span><button type="button" class="btn" data-selcancel="1">ביטול</button><select class="btn primary selmove" data-selmove="1"${n?"":" disabled"} aria-label="העברה לקטגוריה"><option value="">העברה ל…</option>${catOptions(null,false)}</select></div>`;
   return `<div class="selbar" role="region" aria-label="פעולות על הבחירה"><span class="seln">${n?`נבחרו ${n}`:"לא נבחרו משימות"}</span><button type="button" class="btn" data-selcancel="1">ביטול</button><button type="button" class="btn primary" data-seladd="1"${n?"":" disabled"}>הוספה לשבוע</button></div>`}
 function taskRow(t,meta){
   const s=statusOf(t.rem),k=catKeyOf("tasks",t),parts=[];
@@ -922,9 +982,12 @@ let shopEdit=null;/* id of the product being edited in place */
 function shopRow(it,meta){
   if(shopEdit===it.id)return `<form class="row editrow" data-editform="${it.id}" data-id="${it.id}">
     <span class="editfields"><input type="text" data-keep="en-${it.id}" name="name" value="${esc(it.name)}" aria-label="שם המוצר" enterkeyhint="done" autocomplete="off">
-    <span class="edit2"><input type="text" data-keep="es-${it.id}" name="store" value="${esc(it.store||"")}" placeholder="חנות" aria-label="חנות" autocomplete="off"><input type="text" data-keep="eo-${it.id}" name="notes" value="${esc(it.notes||"")}" placeholder="הערה" aria-label="הערה" autocomplete="off"></span><label class="tenchip"><input type="checkbox" data-keep="et-${it.id}" name="ten"${it.afterTenth?" checked":""}><span>אחרי ה־10</span></label></span>
+    <span class="edit2"><input type="text" data-keep="es-${it.id}" name="store" value="${esc(it.store||"")}" placeholder="חנות" aria-label="חנות" autocomplete="off"><input type="text" data-keep="eo-${it.id}" name="notes" value="${esc(it.notes||"")}" placeholder="הערה" aria-label="הערה" autocomplete="off"></span><span class="edit2"><select name="cat" data-catsel="1" data-keep="ec-${it.id}" aria-label="קטגוריה">${catOptions(it.cat)}</select><input type="text" class="newcat" name="newcat" data-keep="ecn-${it.id}" placeholder="שם הקטגוריה החדשה" aria-label="שם הקטגוריה החדשה" autocomplete="off" hidden></span>
+    <span class="tagchips"><label class="tenchip"><input type="checkbox" data-keep="et-${it.id}" name="ten"${it.afterTenth?" checked":""}><span>אחרי ה־10</span></label>${allTags().map(x=>`<label class="tenchip"><input type="checkbox" name="tag" value="${esc(x)}" data-keep="etg-${it.id}-${esc(x)}"${(it.tags||[]).includes(x)?" checked":""}><span>${esc(x)}</span></label>`).join("")}<input type="text" class="newtag" name="newtag" data-keep="etn-${it.id}" placeholder="+ תגית" aria-label="תגית חדשה" autocomplete="off"></span></span>
     <span class="editbtns"><button type="submit" class="eok" aria-label="שמירה">${IC.check}</button><button type="button" class="edel" data-pdel="${it.id}" aria-label="מחיקת המוצר">${IC.bin}</button></span>
   </form>`;
+  const vf=currentF().f,tagHtml=(it.afterTenth&&page!=="shop10"&&vf.ten!==true?`<span class="wk">אחרי ה־10</span>`:"")+(it.tags||[]).filter(x=>x!==vf.tag).map(x=>`<span class="wk">${esc(x)}</span>`).join("");
+  if(selSet)return `<button type="button" class="pickrow selrow" data-sel="${it.id}" aria-pressed="${selSet.has(it.id)}"><span class="pickbox">${IC.check}</span><span class="body"><span class="name">${esc(it.name)}${tagHtml}</span></span></button>`;
   const parts=[];
   for(const m of meta){
     if(m==="cat")parts.push(`<span style="${catStyle("shop",it.cat)}"><i class="cd"></i>${esc(catLabel(it.cat))}</span>`);
@@ -933,14 +996,21 @@ function shopRow(it,meta){
   }
   return `<div class="row shoprow" data-id="${it.id}">
     <button class="check" data-buy="${it.id}" aria-label="סימון כנקנה: ${esc(it.name)}">${IC.check}</button>
-    <button class="body" data-pedit="${it.id}" aria-label="עריכת ${esc(it.name)}"><span class="name">${esc(it.name)}${it.afterTenth&&page!=="shop10"?`<span class="wk">אחרי ה־10</span>`:""}</span>${parts.length?`<span class="meta">${parts.join('<span class="sep">·</span>')}</span>`:""}</button>
+    <button class="body" data-pedit="${it.id}" aria-label="עריכת ${esc(it.name)}"><span class="name">${esc(it.name)}${tagHtml}</span>${parts.length?`<span class="meta">${parts.join('<span class="sep">·</span>')}</span>`:""}</button>
     <span class="drag" data-drag="${it.id}" aria-label="גרירה לקטגוריה אחרת" title="גרירה לקטגוריה אחרת"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>
   </div>`;
+}
+function catOptions(cur,withNew=true){
+  const list=catList("shop");let h="";
+  for(const sec of sections()){const cs=list.filter(k=>sectionOf(k)===sec.id);if(!cs.length)continue;
+    h+=`<optgroup label="${esc(sec.name)}">${cs.map(k=>`<option value="${esc(k)}"${k===cur?" selected":""}>${esc(catLabel(k))}</option>`).join("")}</optgroup>`}
+  const orph=list.filter(k=>!sections().some(x=>x.id===sectionOf(k)));if(orph.length)h+=orph.map(k=>`<option value="${esc(k)}"${k===cur?" selected":""}>${esc(catLabel(k))}</option>`).join("");
+  return h+(withNew?`<option value="__new">+ קטגוריה חדשה</option>`:"");
 }
 function panel(dom,k,title,inner,count,extra=""){
   return `<section class="group cat" style="${catStyle(dom,k)}">${title==null?"":`<h2><span class="dot"></span>${title}${extra}<span class="cnt">${count}</span></h2>`}<div class="list">${inner}</div></section>`;
 }
-function addRow(k){return `<form class="addrow" data-addcat="${esc(k)}"><span class="plus" aria-hidden="true">+</span><input type="text" data-addin="${esc(k)}" data-keep="add-${esc(k)}" placeholder="הוספה ל${esc(catLabel(k))}" enterkeyhint="done" autocomplete="off" aria-label="הוספת מוצר ל${esc(catLabel(k))}"><button type="submit" class="addok" aria-label="שמירה">${IC.check}</button></form>`}
+function addRow(k){return `<form class="addrow" data-addcat="${esc(k)}"><span class="plus" aria-hidden="true">+</span><input type="text" data-addin="${esc(k)}" data-keep="add-${esc(k)}" placeholder=" " enterkeyhint="done" autocomplete="off" aria-label="הוספת מוצר ל${esc(catLabel(k))}"><select class="addsel" data-catsel="1" data-keep="add-${esc(k)}-c" aria-label="קטגוריה">${catOptions(k)}</select><button type="submit" class="addok" aria-label="שמירה">${IC.check}</button><input type="text" class="newcat" name="newcat" data-keep="add-${esc(k)}-n" placeholder="שם הקטגוריה החדשה" aria-label="שם הקטגוריה החדשה" autocomplete="off" hidden></form>`}
 let collapsed=new Set();try{collapsed=new Set(JSON.parse(localStorage.getItem("house-collapsed")||"[]"))}catch(e){}
 /* shopping: section (דחוף / בית / שני) → category panels → items, each list ending in an add row */
 function shopSections(items,{showEmpty,adds,secFilter,noHead}){
@@ -980,10 +1050,9 @@ function renderTabs(){
   const a=$(`#tabs [data-page="${CSS.escape(page)}"]`);if(a&&page!==lastPage)a.scrollIntoView({block:"nearest",inline:"nearest"});
 }
 function toolIcons(dom,f){
-  if(dom==="shop")return `<div class="head-tools"><button type="button" class="btn ibtn" data-manage="shop" aria-label="ניהול קטגוריות" title="ניהול קטגוריות">${IC.tags}</button></div>`;
   const n=activeCount(dom,f);
   const sortL=dom==="shop"?({added:"הסדר שלי",new:"החדשים קודם",name:"לפי שם"})[f.sort]:({default:"תדירות",late:"האיחור הגדול קודם",name:"לפי שם"})[f.sort];
-  return `<div class="head-tools"><button type="button" class="btn ibtn${selSet?" on":""}" data-selmode="1" aria-pressed="${!!selSet}" aria-label="בחירת כמה משימות" title="בחירת כמה משימות"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="m8 12.2 2.8 2.8L16.2 9"/></svg></button><button type="button" class="btn ibtn${n?" on":""}" data-fsmode="filter" aria-label="סינון${n?`, ${n} פעילים`:""}" title="סינון">${IC.filter}${n?`<span class="dotn">${n}</span>`:""}</button><button type="button" class="btn ibtn" data-fsmode="sort" aria-label="מיון: ${esc(sortL||"")}" title="מיון: ${esc(sortL||"")}">${IC.cats}</button><button type="button" class="btn ibtn" data-manage="${dom}" aria-label="ניהול קטגוריות" title="ניהול קטגוריות">${IC.tags}</button></div>`;
+  return `<div class="head-tools"><button type="button" class="btn ibtn${selSet?" on":""}" data-selmode="1" aria-pressed="${!!selSet}" aria-label="${dom==="shop"?"בחירת כמה מוצרים":"בחירת כמה משימות"}" title="${dom==="shop"?"בחירת כמה מוצרים":"בחירת כמה משימות"}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="m8 12.2 2.8 2.8L16.2 9"/></svg></button><button type="button" class="btn ibtn${n?" on":""}" data-fsmode="filter" aria-label="סינון${n?`, ${n} פעילים`:""}" title="סינון">${IC.filter}${n?`<span class="dotn">${n}</span>`:""}</button><button type="button" class="btn ibtn" data-fsmode="sort" aria-label="מיון: ${esc(sortL||"")}" title="מיון: ${esc(sortL||"")}">${IC.cats}</button><button type="button" class="btn ibtn" data-manage="${dom}" aria-label="ניהול קטגוריות" title="ניהול קטגוריות">${IC.tags}</button></div>`;
 }
 function toolbar(dom,f){
   const n=activeCount(dom,f);
@@ -1009,6 +1078,7 @@ function render(soft){
   main.querySelectorAll("[data-keep]").forEach(el=>{kept[el.dataset.keep]=el.type==="checkbox"?el.checked:el.value});
   main.innerHTML=renderPage();
   main.querySelectorAll("[data-keep]").forEach(el=>{if(el.dataset.keep in kept&&!el.dataset.keep.startsWith("add-"+(refocus||"\u0000"))){if(el.type==="checkbox")el.checked=kept[el.dataset.keep];else el.value=kept[el.dataset.keep]}});
+  main.querySelectorAll("[data-catsel]").forEach(x=>{const n=x.parentNode.querySelector(".newcat");if(n)n.hidden=x.value!=="__new"});
   if(focusKey&&!refocus){const el=main.querySelector(`[data-keep="${CSS.escape(focusKey)}"]`);if(el){el.focus({preventScroll:true});try{el.setSelectionRange(sel[0],sel[1])}catch(e){}}}
   if(!soft&&page!==lastPage)window.scrollTo(0,0);
   lastPage=page;
@@ -1027,7 +1097,7 @@ function renderTaskList(f){
   const v=viewOf(page);
   const items=allTasks().filter(t=>taskMatch(t,f));
   items.sort(f.sort==="late"?(a,b)=>(a.rem??1e9)-(b.rem??1e9)||defaultSort(a,b):f.sort==="name"?(a,b)=>a.name.localeCompare(b.name,"he"):defaultSort);
-  const h=`<div class="page-head"><div><b>${esc(v?v.name:"כל המשימות")}</b><span>${selSet?(selSet.size?`נבחרו ${selSet.size} משימות`:"סמני משימות להוספה לשבוע"):items.length===tasks.size?`${tasks.size} משימות`:`${items.length} מתוך ${tasks.size} משימות`}</span></div>${toolIcons("tasks",f)}</div>`+activeChips("tasks",f)+selBar();
+  const h=`<div class="page-head"><div><b>${esc(v?v.name:"כל המשימות")}</b>${selSet?`<span>${selSet.size?`נבחרו ${selSet.size} משימות`:"סמני משימות להוספה לשבוע"}</span>`:items.length===tasks.size?"":`<span>${items.length} מתוך ${tasks.size} משימות</span>`}</div>${toolIcons("tasks",f)}</div>`+activeChips("tasks",f)+selBar();
   if(!tasks.size)return h+`<div class="empty"><b>עוד אין משימות</b>לחצי על + כדי להוסיף את הראשונה.</div>`;
   if(!items.length)return h+`<div class="empty"><b>אין משימות שמתאימות</b>אפשר לשנות את החיפוש או הסינון.</div>`;
   if(f.group==="cat")return h+catPanels("tasks",items,t=>taskRow(t,["room","int"]));
@@ -1059,14 +1129,17 @@ function renderWeek(){
   return h;
 }
 function renderHistory(){
-  const ev=[];tasks.forEach(t=>(t.history||[]).forEach(d=>ev.push({d,name:t.name})));
+  const ev=[];tasks.forEach(t=>(t.history||[]).forEach(d=>ev.push({d,name:t.name,k:catKeyOf("tasks",t)})));
   ev.sort((a,b)=>b.d.localeCompare(a.d));
   const recent=ev.filter(e=>diff(TODAY,e.d)<=60&&qmatch(e));
-  if(!recent.length)return `<div class="empty"><b>אין ביצועים בחודשיים האחרונים</b>כל סימון "בוצעה" יופיע כאן.</div>`;
+  if(!recent.length)return `<div class="empty"><b>אין ביצועים בחודשיים האחרונים</b>כל סימון "בוצע" יופיע כאן.</div>`;
   const week=ev.filter(e=>e.d>=weekStart()).length;
-  let h=`<div class="page-head"><div><b>משימות שבוצעו</b><span>מיום שישי בוצעו ${week} משימות</span></div></div>`,cur="";
-  recent.forEach(e=>{if(e.d!==cur){if(cur)h+="</div>";cur=e.d;const ago=diff(TODAY,e.d);h+=`<div class="dayhead">${ago===0?"היום":ago===1?"אתמול":fmt(e.d)}</div><div class="hist">`}h+=`<div class="hrow"><div>${esc(e.name)}</div></div>`});
-  return h+"</div>";
+  const wd=d=>new Intl.DateTimeFormat("he",{weekday:"long"}).format(parse(d));
+  let h=`<div class="page-head"><div><b>משימות שבוצעו</b><span>מיום שישי בוצעו ${week}</span></div></div>`;
+  const days=[...new Set(recent.map(e=>e.d))];
+  for(const d of days){const g=recent.filter(e=>e.d===d),ago=diff(TODAY,d);
+    h+=`<section class="hday"><div class="dayhead"><b>${ago===0?"היום":ago===1?"אתמול":wd(d)}</b><span>${fmtShort(d)}</span></div><div class="hist">${g.map(e=>`<div class="hrow" style="${catStyle("tasks",e.k)}"><span class="hdone">${IC.check}</span><span class="hn">${esc(e.name)}</span><span class="hc">${esc(catLabel(e.k))}</span></div>`).join("")}</div></section>`}
+  return h;
 }
 const byOrder=(a,b)=>(a.order??1e12)-(b.order??1e12)||(a.created||"").localeCompare(b.created||"");
 function writeMany(list){for(const[id,d]of list)(d.kind==="shop"?shop:tasks).set(id,d);render(true);for(const[id,d]of list)persist(id,d)}
@@ -1075,10 +1148,10 @@ function renderShopList(f){
   const items=open.filter(it=>shopMatch(it,f));
   items.sort(f.sort==="new"?(a,b)=>(b.created||"").localeCompare(a.created||""):f.sort==="name"?(a,b)=>a.name.localeCompare(b.name,"he"):byOrder);
   const sp=secPageId();
-  const h=`<div class="page-head"><div><b>${esc(v?v.name:sp?secName(sp):"רשימת הקניות")}</b><span>${v||sp?`${items.length} מוצרים`:open.length?`${open.length} מוצרים ברשימה`:"הרשימה ריקה"}</span></div>${toolIcons("shop",f)}</div>`+activeChips("shop",f);
+  const h=`<div class="page-head"><div><b>${esc(v?v.name:sp?secName(sp):"רשימת הקניות")}</b>${selSet?`<span>${selSet.size?`נבחרו ${selSet.size} מוצרים`:"סמני מוצרים להעברה"}</span>`:open.length?"":"<span>הרשימה ריקה</span>"}</div>${toolIcons("shop",f)}</div>`+activeChips("shop",f)+selBar();
   const plainView=!activeCount("shop",f)&&!query.trim();
   if(f.group==="cat"&&sp&&!sections().some(x=>x.id===sp))return h;
-  if(f.group==="cat")return h+(items.length||plainView?shopSections(items,{showEmpty:plainView,adds:true,secFilter:f.sec,noHead:!!sp}):`<div class="empty"><b>אין מוצרים שמתאימים</b>אפשר לשנות את החיפוש או הסינון.</div>`);
+  if(f.group==="cat")return h+(items.length||plainView?shopSections(items,{showEmpty:plainView&&!selSet,adds:!selSet,secFilter:f.sec,noHead:!!sp}):`<div class="empty"><b>אין מוצרים שמתאימים</b>אפשר לשנות את החיפוש או הסינון.</div>`);
   if(!items.length)return h+`<div class="empty"><b>${open.length?"אין מוצרים שמתאימים":"אין מוצרים ברשימה"}</b>${open.length?"אפשר לשנות את החיפוש או הסינון.":"אפשר להוסיף מוצר בשורת ההוספה שבסוף כל קטגוריה."}</div>`;
   if(f.group==="store"){const stores=[...new Set(items.map(storeOf))].sort((a,b)=>(!a)-(!b)||a.localeCompare(b,"he"));return h+stores.map(s=>{const g=items.filter(it=>storeOf(it)===s);return plain(esc(s||"בלי חנות"),g.map(it=>shopRow(it,["cat","note"])).join(""),g.length)}).join("")}
   return h+`<section class="group"><div class="list">${items.map(it=>shopRow(it,["cat","store","note"])).join("")}</div></section>`;
@@ -1114,7 +1187,7 @@ function markDone(id,date){
   const t=tasks.get(id);if(!t)return;const prev=structuredClone(t);
   const hist=[date,...(t.history||[]).filter(d=>d!==date)].sort().reverse().slice(0,40);
   writeDoc(id,{...t,last:date,manualNext:null,history:hist,thisWeek:false});
-  showToast(`נשמר ✓ "${t.name}" בוצעה${t.interval?` · הבאה ב־${fmt(add(date,t.interval))}`:""}`,()=>writeDoc(id,prev));
+  showToast(`"${t.name}" בוצע${t.interval?` · הבאה ב־${fmt(add(date,t.interval))}`:""}`,()=>writeDoc(id,prev));
 }
 function markBought(id){
   const it=shop.get(id);if(!it)return;const prev=structuredClone(it);
@@ -1134,8 +1207,8 @@ document.addEventListener("click",e=>{
   const ar=t.closest("[data-area]");if(ar){switchArea(ar.dataset.area);return}
   const cl=t.closest("[data-collapse]");if(cl){const id=cl.dataset.collapse;collapsed.has(id)?collapsed.delete(id):collapsed.add(id);try{localStorage.setItem("house-collapsed",JSON.stringify([...collapsed]))}catch(e){}render(true);return}
   const fm=t.closest("[data-fsmode]");if(fm){openFilter(fm.dataset.fsmode);return}
-  const d=t.closest("[data-done]");if(d){markDone(d.dataset.done,TODAY);return}
-  const b=t.closest("[data-buy]");if(b){markBought(b.dataset.buy);return}
+  const d=t.closest("[data-done]");if(d){if(d.classList.contains("tick"))return;d.classList.add("tick");setTimeout(()=>markDone(d.dataset.done,TODAY),260);return}
+  const b=t.closest("[data-buy]");if(b){if(b.classList.contains("tick"))return;b.classList.add("tick");setTimeout(()=>markBought(b.dataset.buy),260);return}
   const tb=t.closest("[data-ten]");if(tb){const id=tb.dataset.ten,it=shop.get(id);if(!it)return;const prev=structuredClone(it);
     writeDoc(id,{...it,afterTenth:!it.afterTenth});showToast(it.afterTenth?`"${it.name}" הוסר מאחרי ה־10`:`"${it.name}" יעבור לאחרי ה־10`,()=>writeDoc(id,prev));return}
   const o=t.closest("[data-open]");if(o){openSheet(o.dataset.open);return}
@@ -1169,8 +1242,12 @@ function saveShopEdit(){
   const id=shopEdit,f=document.querySelector(`[data-editform="${CSS.escape(id||"")}"]`);shopEdit=null;
   const it=shop.get(id);if(!it||!f){render(true);return}
   const name=f.elements.name.value.trim().replace(/\s+/g," ")||it.name,store=f.elements.store.value.trim(),notes=f.elements.notes.value.trim(),afterTenth=f.elements.ten.checked;
-  if(name===it.name&&store===(it.store||"")&&notes===(it.notes||"")&&afterTenth===!!it.afterTenth){render(true);return}
-  writeDoc(id,{...it,name,store,notes,afterTenth});showToast("נשמר ✓",false);
+  let cat=f.elements.cat.value;
+  if(cat==="__new"){const nn=f.elements.newcat.value.trim();cat=nn?newShopCat(nn,it.cat):it.cat}
+  const tags=[...new Set([...f.querySelectorAll('input[name="tag"]:checked')].map(x=>x.value).concat(f.elements.newtag.value.split(",").map(x=>x.trim()).filter(Boolean)))];
+  let st=store;if(cat!==it.cat&&store===(it.store||"")&&storeOf(it)&&storeOf(it)===inferStore(it.cat))st=inferStore(cat);
+  if(name===it.name&&store===(it.store||"")&&notes===(it.notes||"")&&afterTenth===!!it.afterTenth&&cat===it.cat&&JSON.stringify(tags)===JSON.stringify(it.tags||[])){render(true);return}
+  writeDoc(id,{...it,name,store:st,notes,afterTenth,cat,tags});showToast("נשמר ✓",false);
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&shopEdit){shopEdit=null;render(true)}});
 /* add a product straight into a list */
@@ -1178,10 +1255,19 @@ function inferStore(k){const c={};for(const it of shop.values())if(it.cat===k&&s
 document.addEventListener("submit",e=>{
   if(e.target.closest("[data-editform]")){e.preventDefault();saveShopEdit();return}
   const f=e.target.closest("[data-addcat]");if(!f)return;e.preventDefault();
-  const k=f.dataset.addcat,inp=f.querySelector("input"),name=inp.value.trim();if(!name)return;
-  const id=newId("p");refocus=k;
+  const k0=f.dataset.addcat,inp=f.querySelector("[data-addin]"),name=inp.value.trim();if(!name)return;
+  let k=f.querySelector("[data-catsel]")?.value||k0;
+  if(k==="__new"){const nc=f.querySelector(".newcat"),nn=nc.value.trim();if(!nn){nc.hidden=false;nc.focus();return}k=newShopCat(nn,k0)}
+  const id=newId("p");refocus=k0;
   writeDoc(id,{kind:"shop",name,cat:k,store:inferStore(k),notes:"",afterTenth:page==="shop10",bought:null,created:new Date().toISOString()});
   showToast(`"${name}" נוסף ל${catLabel(k)}`,()=>removeDoc(id));
+});
+document.addEventListener("change",e=>{
+  const s=e.target.closest("[data-catsel]");if(s){const n=s.parentNode.querySelector(".newcat");if(n){n.hidden=s.value!=="__new";if(!n.hidden)n.focus()}return}
+  const m=e.target.closest("[data-selmove]");if(m&&selSet&&m.value){const to=m.value,ch=[],pv=[];
+    for(const id of selSet){const it=shop.get(id);if(!it||it.cat===to)continue;const store=storeOf(it)&&storeOf(it)===inferStore(it.cat)?inferStore(to):(it.store||"");ch.push([id,{...it,cat:to,store}]);pv.push([id,structuredClone(it)])}
+    selSet=null;if(ch.length)writeMany(ch);else render(true);
+    showToast(ch.length?`${ch.length===1?"מוצר אחד הועבר":ch.length+" מוצרים הועברו"} ל${catLabel(to)}`:"המוצרים כבר בקטגוריה הזאת",ch.length?()=>writeMany(pv):false)}
 });
 $("#arch-btn").onclick=()=>{renderArchive();openLayer("#asheet");$("#asheet").scrollTop=0};
 $("#a-body").addEventListener("click",e=>{const b=e.target.closest("[data-adel]");if(!b)return;const id=b.dataset.adel,prev=structuredClone(shop.get(id));removeDoc(id);renderArchive();showToast(`"${prev.name}" נמחק מהארכיון`,()=>{writeDoc(id,prev);renderArchive()})});
@@ -1216,6 +1302,7 @@ function addCategory(dom,name){
   writeSettings({...settings,cats:{tasks:catList("tasks"),shop:catList("shop"),[dom]:[...list,k]},labels:{...(settings.labels||{}),[k]:name}});
   return k;
 }
+function newShopCat(name,near){const k=addCategory("shop",name);if(k&&!(settings.catSection||{})[k])writeSettings({...settings,catSection:{...(settings.catSection||{}),[k]:secPageId()||sectionOf(near)}});return k}
 function addTypeFromSheet(){const k=addCategory("tasks",$("#f-newtype-in").value);if(!k)return;editType=k;typeTouched=true;$("#f-newtype").hidden=true;$("#f-guess").hidden=true;renderTypes();clearErr("type");autosave()}
 $("#f-newtype-ok").onclick=addTypeFromSheet;
 $("#f-newtype-in").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addTypeFromSheet()}});
@@ -1390,6 +1477,7 @@ function renderFilter(){
     const stores=[...new Set(all.map(storeOf))].sort((a,b)=>(!a)-(!b)||a.localeCompare(b,"he"));
     h+=`<div class="fgroup"><span class="lab">חנות</span><div class="opts">${optBtns("store",[[null,"הכול",cnt("store",()=>true)],...stores.map(s=>[s,s||"בלי חנות",cnt("store",it=>storeOf(it)===s)])],f.store)}</div></div>`;
     h+=`<div class="fgroup"><span class="lab">מתי לקנות</span><div class="opts">${optBtns("ten",[[null,"הכול",cnt("ten",()=>true)],[true,"אחרי ה־10",cnt("ten",it=>!!it.afterTenth)],[false,"לא אחרי ה־10",cnt("ten",it=>!it.afterTenth)]],f.ten)}</div></div>`;
+    const tg=allTags();if(tg.length)h+=`<div class="fgroup"><span class="lab">תגית</span><div class="opts">${optBtns("tag",[[null,"הכול",cnt("tag",()=>true)],...tg.map(x=>[x,x,cnt("tag",it=>(it.tags||[]).includes(x))])],f.tag)}</div></div>`;
   }
   $("#fs-body").innerHTML=h;
   $("#fs-savewrap").hidden=!!v;
@@ -1402,6 +1490,8 @@ function saveView(){
   const name=$("#fs-name").value.trim();if(!name){$("#fs-name").focus();$("#fs-name").placeholder="צריך שם לדף";return}
   const{dom,f}=currentF(),id="v"+Date.now().toString(36);
   writeSettings({...settings,views:[...views(),{id,name,dom,f:{...f}}],pages:[...pageList("tasks"),...pageList("shop"),id]});
+  /* the filter now lives in its own page, so the original page goes back to showing everything */
+  if(!viewOf(page)){const base=dom==="shop"?SF0:TF0;if(secPageId())localF[page]={};else localF[dom]={...base,group:f.group,sort:f.sort};saveLocalF()}
   closeLayers();go(id,"next");showToast(`הדף "${name}" נשמר`,false);
 }
 $("#fs-save").onclick=saveView;
@@ -1604,7 +1694,7 @@ $("#refresh").onclick=async()=>{
   if(mode==="db"){setTimeout(()=>{b.classList.remove("spin");render(true);showToast("מעודכן ✓",false)},500);return}
   location.reload();
 };
-{const tb=$("#topbar");const onS=()=>tb.classList.toggle("stuck",window.scrollY>8);window.addEventListener("scroll",onS,{passive:true});onS();}
+{const tb=$("#topbar"),up=$("#totop");up.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});const onS=()=>{tb.classList.toggle("stuck",window.scrollY>8);up.hidden=window.scrollY<500};window.addEventListener("scroll",onS,{passive:true});onS();}
 
 /* ---------- no zoom ---------- */
 ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
