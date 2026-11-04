@@ -968,7 +968,6 @@ function taskRow(t,meta){
     return `<button type="button" class="pickrow selrow" data-sel="${t.id}" aria-pressed="${on}"${fixed?" disabled":""}><span class="pickbox">${IC.check}</span><span class="body"><span class="name">${esc(t.name)}${fixed?`<span class="wk">בכל שבוע</span>`:t.thisWeek?`<span class="wk">השבוע</span>`:""}</span><span class="meta"><span>${intLabel(t.interval)}</span><span class="sep">·</span><span>${remLabel(t.rem)}</span></span></span></button>`}
   for(const m of meta){
     if(m==="cat")parts.push(`<span style="${catStyle("tasks",k)}"><i class="cd"></i>${esc(catLabel(k))}</span>`);
-    if(m==="room"&&t.room)parts.push(`<span>${esc(t.room)}</span>`);
     if(m==="int")parts.push(`<span>${intLabel(t.interval)}</span>`);
   }
   const wk=page==="week"?"":isAlways(k)?`<span class="wk">בכל שבוע</span>`:t.thisWeek?`<span class="wk">השבוע</span>`:"";
@@ -1008,10 +1007,16 @@ function catOptions(cur,withNew=true){
   return h+(withNew?`<option value="__new">+ קטגוריה חדשה</option>`:"");
 }
 function panel(dom,k,title,inner,count,extra=""){
+  if(title!=null&&dom==="tasks"&&page!=="week"&&!picking){const ck="t:"+k,cl=isClosed(ck);
+    return `<section class="group cat${cl?" closed":""}" style="${catStyle(dom,k)}"><button type="button" class="cat-h" data-collapse="${esc(ck)}" aria-expanded="${!cl}"><span class="t">${title}${extra}</span><span class="cnt">${count}</span></button><div class="list">${inner}</div></section>`}
   return `<section class="group cat" style="${catStyle(dom,k)}">${title==null?"":`<h2><span class="dot"></span>${title}${extra}<span class="cnt">${count}</span></h2>`}<div class="list">${inner}</div></section>`;
 }
 function addRow(k){return `<form class="addrow" data-addcat="${esc(k)}"><span class="plus" aria-hidden="true">+</span><input type="text" data-addin="${esc(k)}" data-keep="add-${esc(k)}" placeholder=" " enterkeyhint="done" autocomplete="off" aria-label="הוספת מוצר ל${esc(catLabel(k))}"><select class="addsel" data-catsel="1" data-keep="add-${esc(k)}-c" aria-label="קטגוריה">${catOptions(k)}</select><button type="submit" class="addok" aria-label="שמירה">${IC.check}</button><input type="text" class="newcat" name="newcat" data-keep="add-${esc(k)}-n" placeholder="שם הקטגוריה החדשה" aria-label="שם הקטגוריה החדשה" autocomplete="off" hidden></form>`}
-let collapsed=new Set();try{collapsed=new Set(JSON.parse(localStorage.getItem("house-collapsed")||"[]"))}catch(e){}
+/* open/closed state lives for this visit only (sessionStorage): leaving and coming back keeps it, a fresh start resets it.
+   categories start closed; shopping's main sections start open. While searching everything opens. */
+let toggled=new Set();try{toggled=new Set(JSON.parse(sessionStorage.getItem("house-open")||"[]"))}catch(e){}
+const catKeyish=id=>/^(c|t):/.test(id);
+function isClosed(id){if(query.trim()||selSet)return false;return catKeyish(id)?!toggled.has(id):toggled.has(id)}
 /* shopping: section (דחוף / בית / שני) → category panels → items, each list ending in an add row */
 function shopSections(items,{showEmpty,adds,secFilter,noHead}){
   const list=catList("shop");let h="";
@@ -1021,11 +1026,11 @@ function shopSections(items,{showEmpty,adds,secFilter,noHead}){
     let body="",n=0;
     for(const k of cats){const g=items.filter(it=>it.cat===k);if(!g.length&&!showEmpty)continue;n+=g.length;
       const inner=g.map(it=>shopRow(it,["store","note"])).join("")+(adds?addRow(k):"");
-      const solo=cats.length===1&&catLabel(k)===sec.name,ck="c:"+k,closed=collapsed.has(ck);
+      const solo=cats.length===1&&catLabel(k)===sec.name,ck="c:"+k,closed=isClosed(ck);
       body+=solo?`<section class="group cat" data-cat="${esc(k)}" style="${catStyle("shop",k)}"><div class="list">${inner}</div></section>`:`<section class="group cat${closed?" closed":""}" data-cat="${esc(k)}" style="${catStyle("shop",k)}"><button type="button" class="cat-h" data-collapse="${esc(ck)}" aria-expanded="${!closed}"><span class="dot"></span><span class="t">${esc(catLabel(k))}</span><span class="cnt">${g.length}</span></button><div class="list">${inner}</div></section>`}
     if(!body)continue;
     if(noHead){h+=body;continue}
-    h+=`<section class="sect${collapsed.has(sec.id)?" closed":""}"><button type="button" class="sect-h" data-collapse="${sec.id}" aria-expanded="${!collapsed.has(sec.id)}"><b>${esc(sec.name)}</b><span class="cnt">${n}</span></button><div class="sect-b">${body}</div></section>`;
+    h+=`<section class="sect${isClosed(sec.id)?" closed":""}"><button type="button" class="sect-h" data-collapse="${sec.id}" aria-expanded="${!isClosed(sec.id)}"><b>${esc(sec.name)}</b><span class="cnt">${n}</span></button><div class="sect-b">${body}</div></section>`;
   }
   const orphans=items.filter(it=>!list.includes(it.cat));
   if(orphans.length)h+=plain("ללא קטגוריה",orphans.map(it=>shopRow(it,["store","note"])).join(""),orphans.length);
@@ -1205,7 +1210,7 @@ document.addEventListener("click",e=>{
   if(t.closest(".sheet,.picker")&&!t.closest("#main"))return;
   const tab=t.closest("[data-page]");if(tab){go(tab.dataset.page);return}
   const ar=t.closest("[data-area]");if(ar){switchArea(ar.dataset.area);return}
-  const cl=t.closest("[data-collapse]");if(cl){const id=cl.dataset.collapse;collapsed.has(id)?collapsed.delete(id):collapsed.add(id);try{localStorage.setItem("house-collapsed",JSON.stringify([...collapsed]))}catch(e){}render(true);return}
+  const cl=t.closest("[data-collapse]");if(cl){const id=cl.dataset.collapse;toggled.has(id)?toggled.delete(id):toggled.add(id);try{sessionStorage.setItem("house-open",JSON.stringify([...toggled]))}catch(e){}render(true);return}
   const fm=t.closest("[data-fsmode]");if(fm){openFilter(fm.dataset.fsmode);return}
   const d=t.closest("[data-done]");if(d){if(d.classList.contains("tick"))return;d.classList.add("tick");setTimeout(()=>markDone(d.dataset.done,TODAY),260);return}
   const b=t.closest("[data-buy]");if(b){if(b.classList.contains("tick"))return;b.classList.add("tick");setTimeout(()=>markBought(b.dataset.buy),260);return}
