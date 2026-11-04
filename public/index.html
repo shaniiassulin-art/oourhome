@@ -583,7 +583,7 @@ body:has(.selbar) .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
     </div>
     <nav class="tabs" aria-label="דפים">
       <div class="tabs-scroll" id="tabs"></div>
-      <button class="pages-btn" id="pages-btn" type="button" aria-label="סדר הדפים"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+      <button class="pages-btn" id="pages-btn" type="button" aria-label="ניהול דפים" title="ניהול דפים"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
     </nav>
   </div>
 
@@ -709,7 +709,7 @@ body:has(.selbar) .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
 <div class="picker" id="ordp" role="dialog" aria-modal="true" aria-labelledby="ord-title">
   <div class="pk-head"><b id="ord-title"></b></div>
   <p class="ord-hint" id="ord-hint"></p>
-  <div class="ord-sws"><button type="button" class="btn small" id="ord-pagesw"></button><button type="button" class="btn small" id="ord-switch" hidden></button></div>
+  <div class="ord-sws"><button type="button" class="btn small" id="ord-switch" hidden></button></div>
   <ol class="ord-list" id="ord-list"></ol>
   <div class="inline-add" id="ord-add"><input id="ord-add-in" type="text" maxlength="30" placeholder="קטגוריה חדשה" aria-label="קטגוריה חדשה"><select id="ord-add-sec" aria-label="שייכת ל" hidden></select><button type="button" class="btn" id="ord-add-ok">הוספה</button></div>
   <p class="ord-msg" id="ord-msg" role="alert" hidden></p>
@@ -1552,7 +1552,6 @@ function setCats(dom,list,extra={}){writeSettings({...settings,...extra,cats:{ta
 function renderManage(){
   msg("");
   const sw=$("#ord-switch");sw.hidden=!(mDom==="shop"||mDom==="sections");
-  const pb=$("#ord-pagesw");pb.textContent=mDom==="pages"?"← חזרה לקטגוריות":"דפים: סדר, שם ומחיקה";
   sw.textContent=mDom==="sections"?"← חזרה לקטגוריות":"עריכת קטגוריות ראשיות (דחוף, בית, שני…)";
   if(mDom==="sections"){
     $("#ord-title").textContent="קטגוריות ראשיות בקניות";
@@ -1570,7 +1569,7 @@ function renderManage(){
   }
   $("#ord-add-in").placeholder="קטגוריה חדשה";
   if(mDom==="pages"){
-    $("#ord-title").textContent=area==="shop"?"סדר הדפים בקניות":"סדר הדפים במשימות";$("#ord-hint").textContent="החצים משנים את סדר הדפים. במשימות, הדף הראשון נפתח כשנכנסים לאפליקציה. לדפים ששמרת מהסינון אפשר לשנות שם ולמחוק אותם בעיפרון ובפח.";$("#ord-add").hidden=true;
+    $("#ord-title").textContent=area==="shop"?"ניהול דפים בקניות":"ניהול דפים במשימות";$("#ord-hint").textContent="החצים משנים את סדר הדפים. במשימות, הדף הראשון נפתח כשנכנסים לאפליקציה. לדפים ששמרת מהסינון אפשר לשנות שם ולמחוק אותם בעיפרון ובפח.";$("#ord-add").hidden=true;
     const pl=pageList();
     $("#ord-list").innerHTML=pl.map((id,i)=>{const v=viewOf(id);
       if(v&&mEdit===id)return `<li class="editing"><input type="text" id="ord-in" maxlength="24" value="${esc(v.name)}" aria-label="שם הדף"><button type="button" class="txtb" data-vsave="${id}">שמירה</button><button type="button" class="txtb plain" data-cancel="1">ביטול</button></li>`;
@@ -1597,7 +1596,6 @@ function renderManage(){
 function openManage(dom){mDom=dom;mEdit=mDel=null;renderManage();$("#ord-scrim").classList.add("on");$("#ordp").classList.add("on")}
 function closeManage(){mEdit=mDel=null;$("#ord-scrim").classList.remove("on");$("#ordp").classList.remove("on")}
 $("#pages-btn").onclick=()=>openManage("pages");
-$("#ord-pagesw").onclick=()=>{mDom=mDom==="pages"?area:"pages";mEdit=mDel=null;renderManage()};
 $("#ord-switch").onclick=()=>{mDom=mDom==="sections"?"shop":"sections";mEdit=mDel=null;renderManage()};
 const writeSections=(list,extra={})=>writeSettings({...settings,...extra,shopSections:list});
 $("#ord-done").onclick=closeManage;$("#ord-scrim").onclick=closeManage;
