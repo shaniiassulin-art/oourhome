@@ -1024,7 +1024,9 @@ function addRow(k){return `<form class="addrow" data-addcat="${esc(k)}"><span cl
    categories start closed; shopping's main sections start open. While searching everything opens. */
 let toggled=new Set();try{toggled=new Set(JSON.parse(sessionStorage.getItem("house-open")||"[]"))}catch(e){}
 const catKeyish=id=>/^(c|t):/.test(id);
-function isClosed(id){if(query.trim())return false;return catKeyish(id)?!toggled.has(id):toggled.has(id)}
+/* categories start closed only on the two main pages; on filter pages and other pages they start open */
+const tkey=id=>catKeyish(id)?page+"|"+id:id;
+function isClosed(id){if(query.trim())return false;const k=tkey(id);return catKeyish(id)&&(page==="cats"||page==="shop")?!toggled.has(k):toggled.has(k)}
 /* shopping: section (דחוף / בית / שני) → category panels → items, each list ending in an add row */
 function shopSections(items,{showEmpty,adds,secFilter,noHead}){
   const list=catList("shop");let h="";
@@ -1238,7 +1240,7 @@ document.addEventListener("click",e=>{
   if(t.closest(".sheet,.picker")&&!t.closest("#main"))return;
   const tab=t.closest("[data-page]");if(tab){go(tab.dataset.page);return}
   const ar=t.closest("[data-area]");if(ar){switchArea(ar.dataset.area);return}
-  const cl=t.closest("[data-collapse]");if(cl){const id=cl.dataset.collapse;toggled.has(id)?toggled.delete(id):toggled.add(id);try{sessionStorage.setItem("house-open",JSON.stringify([...toggled]))}catch(e){}render(true);return}
+  const cl=t.closest("[data-collapse]");if(cl){const id=cl.dataset.collapse;{const k=tkey(id);toggled.has(k)?toggled.delete(k):toggled.add(k)}try{sessionStorage.setItem("house-open",JSON.stringify([...toggled]))}catch(e){}render(true);return}
   const fm=t.closest("[data-fsmode]");if(fm){openFilter(fm.dataset.fsmode);return}
   const d=t.closest("[data-done]");if(d){if(d.classList.contains("tick"))return;d.classList.add("tick");setTimeout(()=>markDone(d.dataset.done,TODAY),260);return}
   const b=t.closest("[data-buy]");if(b){if(b.classList.contains("tick"))return;b.classList.add("tick");setTimeout(()=>markBought(b.dataset.buy),260);return}
