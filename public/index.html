@@ -18,7 +18,7 @@
 <title>הבית שלנו</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Secular+One&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=Assistant:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: one quiet column — sticky title bar, search, page tabs (swipeable), tinted category panels with hairline rows, bottom sheets for editing */
 :root{
@@ -575,6 +575,95 @@ body:has(.selbar) .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
 .btn.ibtn,.head-tools .btn.ibtn{width:34px;height:34px}
 .page-head b{white-space:nowrap}
 .page-head>div:first-child{min-width:0}
+
+/* ============ Design system (ui-ux-pro-max): Minimal / Swiss + flat micro-interactions ============
+   palette "family blue + chore green" on slate neutrals · IBM Plex Sans Hebrew · flat cards with hairline borders
+   pressed states change colour/opacity only (no layout shift) · 150–200ms transitions · visible focus ring */
+:root{
+  --f-body:"IBM Plex Sans Hebrew","Assistant",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-display:var(--f-body);
+  --bg:#F8FAFC; --surface:#FFFFFF; --sunk:#F1F5F9; --line:#E2E8F0;
+  --ink:#0F172A; --muted:#475569;
+  --accent:#2563EB; --accent-ink:#FFFFFF; --accent-soft:#DBEAFE;
+  --done:#059669; --done-soft:#D1FAE5; --danger:#DC2626;
+  --wk:#1D4ED8; --wk-bg:#DBEAFE;
+  --ring:#2563EB; --t-fast:150ms; --t-med:200ms;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F172A; --surface:#1E293B; --sunk:#273449; --line:#334155;
+  --ink:#F1F5F9; --muted:#94A3B8; --accent:#60A5FA; --accent-ink:#0B1220; --accent-soft:#1E3A5F;
+  --done:#34D399; --done-soft:#064E3B; --wk:#93C5FD; --wk-bg:#1E3A5F; --ring:#60A5FA}}
+:root[data-theme="dark"]{
+  --bg:#0F172A; --surface:#1E293B; --sunk:#273449; --line:#334155;
+  --ink:#F1F5F9; --muted:#94A3B8; --accent:#60A5FA; --accent-ink:#0B1220; --accent-soft:#1E3A5F;
+  --done:#34D399; --done-soft:#064E3B; --wk:#93C5FD; --wk-bg:#1E3A5F; --ring:#60A5FA}
+
+body{font-family:var(--f-body);line-height:1.5}
+/* clear type hierarchy: one family, weight does the work */
+h1,.sect-h b,.page-head b,.sheet h3,.pk-head b,.dayhead b,.ord-list li.sechead{font-family:var(--f-body);font-weight:700;letter-spacing:-.01em}
+h1{font-size:26px}
+.page-head b{font-size:20px}
+.name{font-weight:500}
+.meta{color:var(--muted)}
+
+/* header & navigation */
+.refresh{border:1px solid var(--line);background:var(--surface);color:var(--muted);width:40px;height:40px}
+.area{background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:3px}
+.area button{border-radius:9px;color:var(--muted);transition:background-color var(--t-fast),color var(--t-fast)}
+.area button[aria-pressed="true"]{background:var(--surface);color:var(--accent);box-shadow:0 1px 2px rgba(15,23,42,.08)}
+.tabs{border-bottom:1px solid var(--line)}
+.tabs button.tab{transition:color var(--t-fast),border-color var(--t-fast)}
+.tabs button.tab[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* flat cards: header above, rows on a white card with a hairline border */
+.group.cat{margin-top:18px}
+.group.cat h2,.cat-h{padding:0 2px 8px;border:0!important}
+.group.cat.closed .cat-h{padding-bottom:0;border-bottom:0!important}
+.group.cat .list,.group .list{background:var(--surface);border:1px solid var(--line)!important;border-radius:12px;padding:0 14px}
+.group.cat .row,.group .row,.pickrow{border-bottom:1px solid var(--line)!important}
+.group .list>.row:last-child,.group .list>.pickrow:last-child{border-bottom:0!important}
+.group.cat .row+.addrow,.group.cat .list>.addrow:not(:first-child){border-top:1px solid var(--line)!important}
+.hist{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 14px}
+.hrow:last-child{border-bottom:0}
+.dayhead{border-bottom:0!important;padding:0 2px 8px}
+.empty{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+
+/* done = chore green */
+.check{border-width:2px}
+.check.tick{background:var(--done);border-color:var(--done);color:#fff}
+.hdone{background:var(--done)!important}
+.pickrow[aria-pressed="true"] .pickbox{background:var(--accent);border-color:var(--accent)}
+
+/* buttons: colour/opacity feedback, never a layout shift */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;transition:background-color var(--t-fast),border-color var(--t-fast),opacity var(--t-fast)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+#sh-fri.btn{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent)}
+.btn:active,.refresh:active,.fab:active,.totop:active,.addok:active,.eok:active,.pages-btn:active{opacity:.7}
+@media (hover:hover){.btn:hover{background:var(--sunk)}.btn.primary:hover{opacity:.9;background:var(--accent)}.row .body:hover .name{color:var(--accent)}}
+.btn.ibtn,.head-tools .btn.ibtn{color:var(--muted)}
+.btn.ibtn.on,.btn.ibtn[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.fab{background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.addok,.eok{background:var(--accent)!important;color:var(--accent-ink)!important}
+.edel{color:var(--danger)}
+.row .body,.pickrow{transition:background-color var(--t-fast)}
+.row:has(.body:active){background:var(--sunk)}
+
+/* tags */
+.wk{background:var(--wk-bg);color:var(--wk);border:0;font-weight:600}
+
+/* floating elements */
+.toast{background:var(--ink);color:var(--bg)}
+.selbar,.totop{background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 16px rgba(15,23,42,.12)}
+.sheet{border-radius:16px 16px 0 0}
+.field input,.field select,.field textarea{background:var(--sunk);border:1px solid var(--line);border-radius:10px}
+.scrim{background:rgba(15,23,42,.45)}
+
+/* focus visible for keyboard users */
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+
+/* touch targets: expand the hit area of small controls without changing their look */
+.check,.addok,.eok,.edel,.drag{position:relative}
+.check::after,.drag::after{content:"";position:absolute;inset:-9px}
 </style>
 
 <div class="wrap">
