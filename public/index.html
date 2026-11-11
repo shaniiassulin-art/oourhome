@@ -626,6 +626,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 input,textarea{caret-color:var(--accent)}
 html{scrollbar-color:var(--line) transparent}
 input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
+.ecancel{color:var(--muted)!important}
+.addbtn{width:100%;border:0;background:none;text-align:right;cursor:pointer;min-height:44px}
+.editrow input[name="name"]::placeholder{color:var(--muted)}
 </style>
 
 <div class="wrap">
@@ -1052,13 +1055,16 @@ function taskRow(t,meta){
   </div>`;
 }
 let shopEdit=null;/* id of the product being edited in place */
+/* one form for creating and editing a product: name, category, tags; ✓ saves */
+function productForm(it,fid,kp,isNew){
+  return `<form class="row editrow" data-editform="${esc(fid)}"${isNew?` data-newcat="${esc(it.cat)}"`:` data-id="${it.id}"`}>
+    <span class="editfields"><input type="text" data-keep="${kp}-n"${isNew?` data-addin="${esc(it.cat)}"`:""} name="name" value="${esc(it.name)}" placeholder="שם המוצר" aria-label="שם המוצר" enterkeyhint="done" autocomplete="off">
+    <span class="edit2"><select name="cat" data-catsel="1" data-keep="${kp}-c" aria-label="קטגוריה">${catOptions(it.cat)}</select><input type="text" class="newcat" name="newcat" data-keep="${kp}-cn" placeholder="שם הקטגוריה החדשה" aria-label="שם הקטגוריה החדשה" autocomplete="off" hidden></span>
+    <span class="tagchips"><label class="tenchip"><input type="checkbox" data-keep="${kp}-t" name="ten"${it.afterTenth?" checked":""}><span>אחרי ה־10</span></label>${allTags().map(x=>`<label class="tenchip"><input type="checkbox" name="tag" value="${esc(x)}" data-keep="${kp}-g-${esc(x)}"${(it.tags||[]).includes(x)?" checked":""}><span>${esc(x)}</span></label>`).join("")}<input type="text" class="newtag" name="newtag" data-keep="${kp}-tn" placeholder="+ תגית" aria-label="תגית חדשה" autocomplete="off"></span></span>
+    <span class="editbtns"><button type="submit" class="eok" aria-label="שמירה">${IC.check}</button>${isNew?`<button type="button" class="edel ecancel" data-pcancel="1" aria-label="ביטול"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`:`<button type="button" class="edel" data-pdel="${it.id}" aria-label="מחיקת המוצר">${IC.bin}</button>`}</span>
+  </form>`}
 function shopRow(it,meta){
-  if(shopEdit===it.id)return `<form class="row editrow" data-editform="${it.id}" data-id="${it.id}">
-    <span class="editfields"><input type="text" data-keep="en-${it.id}" name="name" value="${esc(it.name)}" aria-label="שם המוצר" enterkeyhint="done" autocomplete="off">
-    <span class="edit2"><select name="cat" data-catsel="1" data-keep="ec-${it.id}" aria-label="קטגוריה">${catOptions(it.cat)}</select><input type="text" class="newcat" name="newcat" data-keep="ecn-${it.id}" placeholder="שם הקטגוריה החדשה" aria-label="שם הקטגוריה החדשה" autocomplete="off" hidden></span>
-    <span class="tagchips"><label class="tenchip"><input type="checkbox" data-keep="et-${it.id}" name="ten"${it.afterTenth?" checked":""}><span>אחרי ה־10</span></label>${allTags().map(x=>`<label class="tenchip"><input type="checkbox" name="tag" value="${esc(x)}" data-keep="etg-${it.id}-${esc(x)}"${(it.tags||[]).includes(x)?" checked":""}><span>${esc(x)}</span></label>`).join("")}<input type="text" class="newtag" name="newtag" data-keep="etn-${it.id}" placeholder="+ תגית" aria-label="תגית חדשה" autocomplete="off"></span></span>
-    <span class="editbtns"><button type="submit" class="eok" aria-label="שמירה">${IC.check}</button><button type="button" class="edel" data-pdel="${it.id}" aria-label="מחיקת המוצר">${IC.bin}</button></span>
-  </form>`;
+  if(shopEdit===it.id)return productForm(it,it.id,"e-"+it.id,false);
   const vf=currentF().f,tagHtml=(it.afterTenth&&page!=="shop10"&&vf.ten!==true&&vf.tag!=="__ten"?`<span class="wk">אחרי ה־10</span>`:"")+(it.tags||[]).filter(x=>x!==vf.tag).map(x=>`<span class="wk">${esc(x)}</span>`).join("");
   if(selSet)return `<button type="button" class="pickrow selrow" data-sel="${it.id}" aria-pressed="${selSet.has(it.id)}"><span class="pickbox">${IC.check}</span><span class="body"><span class="name">${esc(it.name)}${tagHtml}</span></span></button>`;
   const parts=[];
@@ -1083,9 +1089,10 @@ function panel(dom,k,title,inner,count,extra=""){
     return `<section class="group cat${cl?" closed":""}" style="${catStyle(dom,k)}"><button type="button" class="cat-h" data-collapse="${esc(ck)}" aria-expanded="${!cl}"><span class="t">${title}${extra}</span><span class="cnt">${count}</span></button><div class="list">${inner}</div></section>`}
   return `<section class="group cat" style="${catStyle(dom,k)}">${title==null?"":`<h2><span class="dot"></span>${title}${extra}<span class="cnt">${count}</span></h2>`}<div class="list">${inner}</div></section>`;
 }
-function addRow(k){return `<form class="addrow" data-addcat="${esc(k)}"><span class="plus" aria-hidden="true">+</span><input type="text" data-addin="${esc(k)}" data-keep="add-${esc(k)}" placeholder=" " enterkeyhint="done" autocomplete="off" aria-label="הוספת מוצר ל${esc(catLabel(k))}"><select class="addsel" data-catsel="1" data-keep="add-${esc(k)}-c" aria-label="קטגוריה">${catOptions(k)}</select><select class="addsel" data-tagsel="1" data-keep="add-${esc(k)}-t" aria-label="תגית">${tagOptions()}</select><button type="submit" class="addok" aria-label="שמירה">${IC.check}</button><input type="text" class="newcat" name="newcat" data-keep="add-${esc(k)}-n" placeholder="שם הקטגוריה החדשה" aria-label="שם הקטגוריה החדשה" autocomplete="off" hidden><input type="text" class="newtagin" name="newtag" data-keep="add-${esc(k)}-g" placeholder="שם התגית החדשה" aria-label="שם התגית החדשה" autocomplete="off" hidden></form>`}
-function tagOptions(){const cur=currentF().f.tag||"";
-  return `<option value=""${cur?"":" selected"}>בלי תגית</option><option value="__ten"${cur==="__ten"||page==="shop10"?" selected":""}>אחרי ה־10</option>${allTags().map(x=>`<option value="${esc(x)}"${x===cur?" selected":""}>${esc(x)}</option>`).join("")}<option value="__new">+ תגית חדשה</option>`}
+function addRow(k){
+  if(shopEdit==="new:"+k){const f=currentF().f;
+    return productForm({name:"",cat:k,afterTenth:page==="shop10"||f.tag==="__ten",tags:f.tag&&f.tag!=="__ten"?[f.tag]:[]},"new:"+k,"add-"+k,true)}
+  return `<button type="button" class="addrow addbtn" data-addnew="${esc(k)}" aria-label="הוספת מוצר ל${esc(catLabel(k))}"><span class="plus" aria-hidden="true">+</span></button>`}
 /* open/closed state lives for this visit only (sessionStorage): leaving and coming back keeps it, a fresh start resets it.
    categories start closed; shopping's main sections start open. While searching everything opens. */
 let toggled=new Set();try{toggled=new Set(JSON.parse(sessionStorage.getItem("house-open")||"[]"))}catch(e){}
@@ -1165,7 +1172,7 @@ function render(soft){
   if(!soft&&page!==lastPage)window.scrollTo(0,0);
   lastPage=page;
   if(refocus){const i=$(`[data-addin="${CSS.escape(refocus)}"]`);refocus=null;if(i){i.value="";i.focus({preventScroll:true})}}
-  if(shopEdit&&editFocus){editFocus=false;const i=main.querySelector(`[data-keep="en-${CSS.escape(shopEdit)}"]`);if(i){i.focus({preventScroll:true});const n=i.value.length;try{i.setSelectionRange(n,n)}catch(e){}}}
+  if(shopEdit&&editFocus){editFocus=false;const i=main.querySelector(`[data-editform="${CSS.escape(shopEdit)}"] [name="name"]`);if(i){i.focus({preventScroll:true});const n=i.value.length;try{i.setSelectionRange(n,n)}catch(e){}}}
   if($("#asheet").classList.contains("on"))renderArchive();
 }
 function renderPage(){
@@ -1303,7 +1310,7 @@ document.addEventListener("click",e=>{
   if(eatClick){eatClick=false;if(e.target.closest("#main .row,#main .pickrow")){e.preventDefault();e.stopPropagation();return}}
   const t=e.target;
   /* tapping anywhere outside a product being edited saves it */
-  if(shopEdit&&!t.closest(".editrow")&&!t.closest("[data-pedit]"))saveShopEdit();
+  if(shopEdit&&!t.closest(".editrow")&&!t.closest("[data-pedit]")&&!t.closest("[data-addnew]"))saveShopEdit();
   if(t.closest(".sheet,.picker")&&!t.closest("#main"))return;
   const tab=t.closest("[data-page]");if(tab){go(tab.dataset.page);return}
   const ar=t.closest("[data-area]");if(ar){switchArea(ar.dataset.area);return}
@@ -1314,6 +1321,8 @@ document.addEventListener("click",e=>{
   const tb=t.closest("[data-ten]");if(tb){const id=tb.dataset.ten,it=shop.get(id);if(!it)return;const prev=structuredClone(it);
     writeDoc(id,{...it,afterTenth:!it.afterTenth});showToast(it.afterTenth?`"${it.name}" הוסר מאחרי ה־10`:`"${it.name}" יעבור לאחרי ה־10`,()=>writeDoc(id,prev));return}
   const o=t.closest("[data-open]");if(o){openSheet(o.dataset.open);return}
+  const an=t.closest("[data-addnew]");if(an){shopEdit="new:"+an.dataset.addnew;editFocus=true;render(true);return}
+  if(t.closest("[data-pcancel]")){shopEdit=null;render(true);return}
   const pe=t.closest("[data-pedit]");if(pe){shopEdit=pe.dataset.pedit;editFocus=true;render(true);return}
   const pd=t.closest("[data-pdel]");if(pd){const id=pd.dataset.pdel,prev=structuredClone(shop.get(id));shopEdit=null;removeDoc(id);showToast(`"${prev.name}" נמחק`,()=>writeDoc(id,prev));return}
 
@@ -1344,8 +1353,19 @@ function setSearch(on){const box=$("#search-box");box.hidden=!on;$("#search-btn"
 $("#search-btn").onclick=()=>setSearch($("#search-box").hidden);
 $("#q").addEventListener("keydown",e=>{if(e.key==="Escape")setSearch(false)});
 $("#add").onclick=()=>openSheet(null);
-function saveShopEdit(){
+function readProductForm(f,fallbackCat){
+  let cat=f.elements.cat.value;
+  if(cat==="__new"){const nn=f.elements.newcat.value.trim();cat=nn?newShopCat(nn,fallbackCat):fallbackCat}
+  const tags=[...new Set([...f.querySelectorAll('input[name="tag"]:checked')].map(x=>x.value).concat(f.elements.newtag.value.split(",").map(x=>x.trim()).filter(Boolean)))];
+  return{name:f.elements.name.value.trim().replace(/\s+/g," "),cat,tags,afterTenth:f.elements.ten.checked}}
+function saveShopEdit(keepOpen){
   const id=shopEdit,f=document.querySelector(`[data-editform="${CSS.escape(id||"")}"]`);shopEdit=null;
+  if(id&&id.startsWith("new:")){const k0=id.slice(4);if(!f){render(true);return}
+    const v=readProductForm(f,k0);
+    if(!v.name){if(keepOpen){shopEdit=id;f.elements.name.focus()}else render(true);return}
+    const nid=newId("p");if(keepOpen){shopEdit=id;refocus=k0}
+    writeDoc(nid,{kind:"shop",name:v.name,cat:v.cat,store:inferStore(v.cat),notes:"",afterTenth:v.afterTenth,tags:v.tags,bought:null,created:new Date().toISOString()});
+    showToast(`"${v.name}" נוסף ל${catLabel(v.cat)}`,()=>removeDoc(nid));return}
   const it=shop.get(id);if(!it||!f){render(true);return}
   const name=f.elements.name.value.trim().replace(/\s+/g," ")||it.name,store=it.store||"",notes=it.notes||"",afterTenth=f.elements.ten.checked;
   let cat=f.elements.cat.value;
@@ -1359,7 +1379,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&shopEdit){shopEdit=
 /* add a product straight into a list */
 function inferStore(k){const c={};for(const it of shop.values())if(it.cat===k&&storeOf(it))c[storeOf(it)]=(c[storeOf(it)]||0)+1;return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||""}
 document.addEventListener("submit",e=>{
-  if(e.target.closest("[data-editform]")){e.preventDefault();saveShopEdit();return}
+  if(e.target.closest("[data-editform]")){e.preventDefault();saveShopEdit(true);return}
   const f=e.target.closest("[data-addcat]");if(!f)return;e.preventDefault();
   const k0=f.dataset.addcat,inp=f.querySelector("[data-addin]"),name=inp.value.trim();if(!name)return;
   let k=f.querySelector("[data-catsel]")?.value||k0;
