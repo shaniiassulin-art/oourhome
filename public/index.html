@@ -18,7 +18,7 @@
 <title>הבית שלנו</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap">
 <style>
 /* Layout: one quiet column — sticky title bar, search, page tabs (swipeable), tinted category panels with hairline rows, bottom sheets for editing */
 :root{
@@ -629,6 +629,88 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 .ecancel{color:var(--muted)!important}
 .addbtn{width:100%;border:0;background:none;text-align:right;cursor:pointer;min-height:44px}
 .editrow input[name="name"]::placeholder{color:var(--muted)}
+
+/* ================= Luxe: quiet, exact, expensive =================
+   near-white porcelain ground, ink-black as the primary colour, one champagne hairline as the signature,
+   a classic Hebrew serif for titles over a light Heebo body, generous air, hairlines instead of boxes */
+:root{
+  --f-display:"Frank Ruhl Libre","Heebo",Georgia,serif;
+  --bg:#FAFAF8; --surface:#FFFFFF; --sunk:#F2F2EF; --line:#E5E3DE;
+  --ink:#141615; --muted:#6A6D69; --accent:#141615; --accent-ink:#FFFFFF; --accent-soft:#EEEDE9;
+  --gild:#A8895A; --gild-soft:rgba(168,137,90,.14);
+  --wk:#7A6340; --wk-bg:#F3EEE5;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D0E0D; --surface:#151716; --sunk:#1D1F1E; --line:#2A2C2A;
+  --ink:#F1F0EB; --muted:#9C9E99; --accent:#F1F0EB; --accent-ink:#0D0E0D; --accent-soft:#232523;
+  --gild:#CDB283; --gild-soft:rgba(205,178,131,.14); --wk:#D8C29A; --wk-bg:#2A251C}}
+:root[data-theme="dark"]{
+  --bg:#0D0E0D; --surface:#151716; --sunk:#1D1F1E; --line:#2A2C2A;
+  --ink:#F1F0EB; --muted:#9C9E99; --accent:#F1F0EB; --accent-ink:#0D0E0D; --accent-soft:#232523;
+  --gild:#CDB283; --gild-soft:rgba(205,178,131,.14); --wk:#D8C29A; --wk-bg:#2A251C}
+
+body{font-weight:400;letter-spacing:.005em}
+/* titles in the serif, everything else in the sans */
+h1,.page-head b,.sect-h b,.sheet h2,.dayhead b,.pk-head b{font-family:var(--f-display);font-weight:500;letter-spacing:0}
+h1{font-size:30px;line-height:1.1}
+.page-head b{font-size:26px;line-height:1.15}
+.sect-h b{font-size:23px}
+.sheet h2{font-size:25px}
+.dayhead b{font-size:20px}
+.date{color:var(--muted);letter-spacing:.02em}
+
+/* header: hairline icon buttons */
+.refresh{border:1px solid var(--line);background:transparent;color:var(--ink)}
+
+/* segmented switch: an ink pill on a hairline track */
+.area{background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px}
+.area button{border-radius:999px;font-weight:500;letter-spacing:.02em;color:var(--muted)}
+.area button[aria-pressed="true"]{background:var(--ink);color:var(--bg);box-shadow:none}
+
+/* tabs: the champagne hairline marks where you are */
+.tabs{border-bottom:1px solid var(--line)}
+.tabs button.tab{font-weight:400;letter-spacing:.02em}
+.tabs button.tab[aria-current="page"]{color:var(--ink);font-weight:600;border-bottom:1.5px solid var(--gild)}
+.tabs .n{background:var(--gild-soft);color:var(--wk);font-weight:600}
+
+/* lists: air and hairlines, no boxes */
+.row{padding:15px 0}
+.name{font-weight:400;font-size:16.5px}
+.meta{letter-spacing:.01em}
+.group.cat h2,.cat-h{font-size:13px;font-weight:600;letter-spacing:.06em;padding-bottom:8px}
+.group,.group.cat{margin-top:30px}
+.sect{margin-top:36px}
+.group.cat h2 .cnt,.cat-h .cnt{font-weight:400}
+.check{border-width:1.5px;opacity:.9}
+.check.tick{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.wk{background:transparent;border:1px solid var(--gild);color:var(--wk);font-weight:500;letter-spacing:.02em}
+
+/* actions: ink pills, hairline secondaries */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;font-weight:500;letter-spacing:.02em}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+#sh-fri.btn{background:var(--surface);border-color:var(--ink);color:var(--ink)}
+.quick .btn{border-radius:14px}
+.btn.ibtn,.head-tools .btn.ibtn{border-radius:50%;background:transparent;color:var(--ink)}
+.btn.ibtn[aria-pressed="true"],.btn.ibtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fab{background:var(--ink);color:var(--bg);box-shadow:0 10px 30px rgba(20,22,21,.22),0 0 0 1px var(--gild) inset}
+.eok,.addok{background:var(--ink)!important;color:var(--bg)!important;border-radius:50%}
+.pickrow[aria-pressed="true"] .pickbox{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+
+/* sheets & floating */
+.sheet{border-radius:22px 22px 0 0}
+.field label,.field .lab{font-size:12.5px;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{background:transparent;border:1px solid var(--line);border-radius:12px}
+.toast{background:var(--ink);color:var(--bg);border-radius:999px;letter-spacing:.01em}
+.selbar{border-radius:999px;border:1px solid var(--line);box-shadow:0 10px 30px rgba(20,22,21,.12)}
+.totop{border:1px solid var(--line);background:var(--surface)}
+.scrim{background:rgba(13,14,13,.42)}
+::selection{background:var(--gild-soft)}
+input,textarea{caret-color:var(--gild)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:1.5px solid var(--gild);outline-offset:3px}
+.datebtn{background:transparent;border:1px solid var(--line);border-radius:12px}
+.tabs button.tab[aria-current="page"]{border-bottom:2px solid var(--gild);margin-bottom:-1px}
+.page-head b{font-size:23px}
+.head-tools{gap:6px}
 </style>
 
 <div class="wrap">
